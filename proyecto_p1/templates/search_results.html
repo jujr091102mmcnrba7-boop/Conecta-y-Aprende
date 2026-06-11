@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="home-shell">
+    <section class="hero">
+        <div class="hero-logo">
+            <span class="hero-letter hero-letter-c">C</span>
+            <span class="hero-letter hero-letter-a">A</span>
+        </div>
+        <div class="hero-copy">
+            <h1>Buscar en Conecta y Aprende</h1>
+            <p>Usa el filtro para encontrar rápidamente tu sección o actividad.</p>
+            <form action="{{ url_for('search') }}" method="get" class="search-form">
+                <input type="text" name="q" placeholder="Busca actividades, transferencias, préstamos..." value="{{ query }}" autofocus>
+            </form>
+        </div>
+    </section>
+
+    <section class="cards">
+        {% if results %}
+            {% for item in results %}
+            <a class="card" href="{{ url_for(item.endpoint, number=item.number) if item.number else url_for(item.endpoint) }}">
+                <span class="card-title">{{ item.title }}</span>
+                <span class="card-meta">{{ item.summary }}</span>
+            </a>
+            {% endfor %}
+        {% else %}
+        <div class="card" style="grid-column: 1 / -1; text-align: center;">
+            <h2>No se encontraron resultados</h2>
+            <p>Prueba con otras palabras clave como "actividades", "transferencias" o "préstamos".</p>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

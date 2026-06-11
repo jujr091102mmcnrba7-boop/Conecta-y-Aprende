@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Monitoreo de Evidencias</h2>
+    <p>Revisa las evidencias subidas por cada usuario y accede a su historial desde aquí.</p>
+    {% if not summaries %}
+    <p>No se han registrado evidencias todavía.</p>
+    {% else %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Actividad</th>
+                <th>Estado</th>
+                <th>Total de evidencias</th>
+                <th>Última semana</th>
+                <th>Último registro</th>
+                <th>Ver detalle</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for summary in summaries %}
+            <tr>
+                <td>
+                    <strong>{{ summary.name }}</strong><br>
+                    <small>{{ summary.email }}</small>
+                </td>
+                <td>{{ summary.activity }}</td>
+                <td>{{ summary.status }}</td>
+                <td>{{ summary.count }}</td>
+                <td>{{ summary.last_week or '-' }}</td>
+                <td>{{ summary.last_date or '-' }}</td>
+                <td><a class="button outline" href="{{ url_for('admin_user_evidence_detail', user_id=summary.user_id) }}">Ver usuario</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <div class="actions">
+        <a class="outline" href="{{ url_for('admin_users') }}">Volver al panel</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="interface-shell">
+    <section class="interface-header">
+        <h1>{{ page_info.title }}</h1>
+        <p class="subtitle">{{ page_info.subtitle }}</p>
+        <p class="role-note">{{ page_info.role_note }}</p>
+    </section>
+
+    <section class="summary-block">
+        <h2>Este espacio contiene</h2>
+        <ul>
+            {% for point in page_info.points %}
+            <li>{{ point }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    {% if page_info.resources %}
+    <section class="resources-section">
+        <h2>Materiales de apoyo</h2>
+        <div class="resources-grid">
+            {% for resource in page_info.resources %}
+            <article class="resource-card">
+                <img src="{{ url_for('static', filename='icons/' ~ resource.image) }}" alt="{{ resource.title }}">
+                <div>
+                    <h3>{{ resource.title }}</h3>
+                    <p>{{ resource.description }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if page_info.features %}
+    <section class="features-grid">
+        {% for feature in page_info.features %}
+        <article class="feature-card">
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+        </article>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <section class="actions-row">
+        <a class="primary" href="{{ url_for(page_info.secondary_action.endpoint) }}">{{ page_info.secondary_action.label }}</a>
+        <a class="secondary" href="{{ url_for('profile') }}">Mi Perfil</a>
+    </section>
+</div>
+{% endblock %}

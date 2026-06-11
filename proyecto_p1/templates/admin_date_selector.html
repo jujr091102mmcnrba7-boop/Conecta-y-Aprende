@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Fecha activa del sistema</h2>
+    <p>Selecciona el día que el sistema debe usar como fecha actual para las evidencias y la semana activa.</p>
+    <form action="{{ url_for('admin_active_date') }}" method="post" class="admin-action-form">
+        <label for="selected_date">Fecha activa</label>
+        <input type="date" id="selected_date" name="selected_date" value="{{ active_date.isoformat() if active_date else '' }}">
+        <button type="submit" class="primary">Guardar fecha</button>
+        <p class="note">Deja vacío para deshabilitar la fecha activa y usar la fecha real del servidor.</p>
+    </form>
+    {% if active_date %}
+    <div class="admin-detail-box">
+        <strong>Fecha activa actual:</strong> {{ active_date.isoformat() }}
+    </div>
+    {% else %}
+    <div class="admin-detail-box">
+        <strong>No hay fecha activa seleccionada.</strong>
+    </div>
+    {% endif %}
+    <div class="actions">
+        <a class="outline" href="{{ url_for('admin_users') }}">Volver al panel</a>
+        <a class="outline" href="{{ url_for('admin_evidence_monitor') }}">Monitorear evidencias</a>
+        <a class="outline" href="{{ url_for('admin_contact_messages') }}">Mensajes de contacto</a>
+    </div>
+</div>
+{% endblock %}

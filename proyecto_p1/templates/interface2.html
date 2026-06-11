@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='interface2.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="app-screen">
+            <section class="app-header">
+                <div class="brand">
+                    <div class="brand-icon">👥</div>
+                    <div>
+                        <h1>Tipos de Usua...</h1>
+                        <p>Roles en la plataforma</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card motivational-card">
+                <div class="summary-block">
+                    <h2>Frases motivadoras</h2>
+                    <ul>
+                        <li>"Aprender es invertir en ti."</li>
+                        <li>"Un curso puede cambiar tu futuro."</li>
+                        <li>"Cada lección te acerca a tus metas."</li>
+                        <li>"No compitas con otros, compite contigo mismo."</li>
+                        <li>"El conocimiento es poder."</li>
+                        <li>"Nunca dejes de crecer."</li>
+                        <li>"Tus esfuerzos de hoy serán tus logros de mañana."</li>
+                        <li>"La práctica hace al maestro."</li>
+                        <li>"Todo experto fue alguna vez principiante."</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section-title">Este sistema está formado por</section>
+            <div class="profile-list">
+                <div class="profile-item">
+                    <span class="icon">📖</span>
+                    <div>
+                        <strong class="title green">Estudiantes</strong>
+                        <p>Acceso a cursos, recursos, eventos y seguimiento de progreso personal.</p>
+                    </div>
+                </div>
+                <div class="profile-item">
+                    <span class="icon">👨‍🏫</span>
+                    <div>
+                        <strong class="title ochre">Instructores</strong>
+                        <p>Crear contenido, dictar talleres y monitorear el aprendizaje de estudiantes.</p>
+                    </div>
+                </div>
+                <div class="profile-item">
+                    <span class="icon">💻</span>
+                    <div>
+                        <strong class="title blue">Administradores</strong>
+                        <p>Control absoluto del sistema, gestión de usuarios, mantenimiento y configuraciones.</p>
+                    </div>
+                </div>
+                <div class="profile-item">
+                    <span class="icon">🛡️</span>
+                    <div>
+                        <strong class="title blue">En Recuperación y Rehabilitación</strong>
+                        <p>Enfoque Principal: Programas especializados y personalizados de educación para la superación, desarrollo de habilidades y reintegración social....</p>
+                    </div>
+                </div>
+            </div>
+
+            <section class="section-title">CARACTERÍSTICAS COMUNES</section>
+            <div class="benefit-block">
+                <div class="benefit-heading">
+                    <span class="icon">✨</span>
+                    <h3>Diseñado para Recuperación y Transformación</h3>
+                </div>
+                <ul>
+                    <li>Crear cuenta personalizada</li>
+                    <li>Ver cursos disponibles</li>
+                    <li>Acceder a recursos y videos</li>
+                    <li>Participar en eventos</li>
+                    <li>Seguimiento personalizado y apoyo</li>
+                    <li>Navegación sencilla e intuitiva</li>
+                </ul>
+            </div>
+            <section class="action-row">
+                {% if user and user.role == 'admin' %}
+                <a class="primary" href="{{ url_for('admin_users') }}">Administrar Usuarios</a>
+                {% else %}
+                <a class="primary" href="{{ url_for('profile') }}">Ver mi perfil</a>
+                {% endif %}
+                <a class="outline" href="{{ url_for('actividades_disponibles') }}">Ver actividades</a>
+            </section>
+        </main>
+
+{% endblock %}

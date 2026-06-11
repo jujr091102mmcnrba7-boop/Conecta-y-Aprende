@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Panel de Transferencias</h2>
+    <p>Administra depósitos y retiros solicitados por los usuarios.</p>
+    {% if not transfers %}
+    <p>No hay transferencias pendientes.</p>
+    {% else %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Estado</th>
+                <th>Referencia</th>
+                <th>Comentario</th>
+                <th>Actualizado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tx in transfers %}
+            <tr>
+                <td>{{ tx[8] }}<br><small>{{ tx[9] }}</small></td>
+                <td>{{ tx[1] }}</td>
+                <td>${{ '%.2f'|format(tx[2]) }}</td>
+                <td>{{ tx[3] }}</td>
+                <td>{{ tx[4] or '-' }}</td>
+                <td>{{ tx[5] or '-' }}</td>
+                <td>{{ tx[7] }}</td>
+                <td>
+                    <form action="{{ url_for('admin_update_transfer', tx_id=tx[0]) }}" method="post" class="admin-action-form">
+                        <input type="text" name="comentario" placeholder="Comentario breve" value="{{ tx[5] or '' }}">
+                        <button type="submit" name="estado" value="completado" class="primary">Completar</button>
+                        <button type="submit" name="estado" value="rechazado" class="outline">Rechazar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <div class="actions">
+        <a class="outline" href="{{ url_for('home') }}">Volver al inicio</a>
+    </div>
+</div>
+{% endblock %}

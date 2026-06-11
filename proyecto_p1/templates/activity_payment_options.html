@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Elegir Actividad</h2>
+    <p>Selecciona la actividad que deseas tomar. Las tres primeras son gratuitas; las demás tienen un costo moderado.</p>
+
+    {% if not can_request %}
+    <div class="card warning-card">
+        <h3>Solo lectura para este rol</h3>
+        <p>Como alumno o docente, puedes explorar y difundir el sistema, pero no solicitar actividades.</p>
+    </div>
+    {% endif %}
+
+    <section class="card">
+        <h3>Actividades gratis</h3>
+        <ul>
+            {% for item in free_activities %}
+            <li>
+                <strong>{{ item.name }}</strong>
+                <p>{{ item.info }}</p>
+                {% if can_request %}
+                <div class="actions">
+                    <a class="button primary" href="{{ url_for('solicitar_actividad', selected_activity=item.name) }}">Solicitar gratis</a>
+                </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="card">
+        <h3>Actividades con pago</h3>
+        <ul>
+            {% for item in paid_activities %}
+            <li>
+                <strong>{{ item.name }}</strong>
+                <p>{{ item.info }}</p>
+                <p><strong>Costo:</strong> ${{ item.cost }}</p>
+                {% if can_request %}
+                <div class="actions">
+                    <a class="button primary" href="{{ url_for('pay_activity', activity_name=item.name) }}">Pagar y solicitar</a>
+                </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="card note-card">
+        <h3>Proceso de pago</h3>
+        <p>Cuando completes el pago, el administrador recibirá tu transferencia y, al aprobarla, te enviará un ticker de acceso.</p>
+    </section>
+
+    <div class="actions">
+        <a class="outline" href="{{ url_for('home') }}">Volver al inicio</a>
+        <a class="outline" href="{{ url_for('user_activity_dashboard') }}">Mi actividad</a>
+    </div>
+</div>
+{% endblock %}

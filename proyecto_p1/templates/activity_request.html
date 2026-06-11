@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-shell">
+    <h2>Solicitud de Actividad</h2>
+    <p>Selecciona una actividad, revisa sus detalles y completa tus datos para enviar la solicitud.</p>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <div class="card">
+        <h3>Actividades disponibles</h3>
+        <ul>
+            {% for item in activities %}
+            <li>
+                <strong>{{ item.name }}</strong>: {{ item.info }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <form action="{{ url_for('solicitar_actividad') }}" method="post" class="login-form">
+        <label for="actividad">Actividad</label>
+        <select name="actividad" id="actividad" required>
+            <option value="">-- Elige una actividad --</option>
+            {% for item in activities %}
+            <option value="{{ item.name }}" {% if selected_activity == item.name %}selected{% endif %}>{{ item.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" value="{{ user.nombre }}" readonly>
+
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" value="{{ user.email }}" readonly>
+
+        <label for="role">Rol</label>
+        <input type="text" id="role" value="{{ role_label }}" readonly>
+
+        <label for="disponibilidad">Disponibilidad</label>
+        <input type="text" name="disponibilidad" id="disponibilidad" value="{{ disponibilidad if disponibilidad is defined else '' }}" placeholder="Ej. Lunes a viernes de 9:00 a 14:00" required>
+
+        <label for="descripcion">Descripción de tu solicitud</label>
+        <textarea name="descripcion" id="descripcion" rows="4" required>{{ descripcion if descripcion is defined else '' }}</textarea>
+
+        <label for="adicional">Información adicional (opcional)</label>
+        <textarea name="adicional" id="adicional" rows="3">{{ adicional if adicional is defined else '' }}</textarea>
+
+        <button type="submit" class="primary">Enviar solicitud</button>
+    </form>
+</div>
+{% endblock %}

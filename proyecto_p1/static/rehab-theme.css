@@ -1,0 +1,260 @@
+:root {
+    --rehab-bg: #ecfeff;
+    --rehab-soft: #f0fdfa;
+    --rehab-card: #ffffff;
+    --rehab-primary: #7c3aed;
+    --rehab-secondary: #14b8a6;
+    --rehab-accent: #0ea5e9;
+    --rehab-text: #0f172a;
+    --rehab-muted: #334155;
+    --rehab-border: rgba(20, 184, 166, 0.18);
+}
+
+body {
+    background: linear-gradient(180deg, #ecfeff 0%, #effafa 58%, #ffffff 100%) !important;
+    color: var(--rehab-text) !important;
+}
+
+header {
+    background: linear-gradient(135deg, var(--rehab-secondary), var(--rehab-primary)) !important;
+    color: white !important;
+}
+
+nav a {
+    color: white !important;
+}
+
+.brand-bar {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.site-logo {
+    background: rgba(255, 255, 255, 0.88) !important;
+}
+
+main {
+    color: var(--rehab-text);
+}
+
+.card,
+.post,
+.summary-block,
+.resources-section,
+.simple-shell,
+.login-shell,
+.hero,
+.profile-card,
+.info-card,
+.activity-item,
+.feature-card,
+.resource-card,
+.benefit-block,
+.highlight-card,
+.admin-item,
+.progress-card,
+.notification-list li,
+.evidence-list li,
+.admin-table,
+.admin-table th,
+.admin-table td {
+    background: var(--rehab-card) !important;
+    border-color: var(--rehab-border) !important;
+}
+
+.hero,
+.summary-block,
+.resources-section,
+.feature-card,
+.resource-card,
+.highlight-card,
+.profile-card,
+.benefit-highlight,
+.item,
+.admin-item {
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06) !important;
+}
+
+button.primary,
+.primary,
+.link-button,
+.grid-button.filled,
+button.primary,
+.actions-row .primary,
+.badge.purple {
+    background: linear-gradient(135deg, var(--rehab-primary), var(--rehab-secondary)) !important;
+    color: white !important;
+    border-color: transparent !important;
+}
+
+button.outline,
+.outline,
+.grid-button.outline,
+.actions-row .secondary,
+.links .secondary,
+.secondary,
+.admin-action-form button {
+    background: white !important;
+    border: 2px solid var(--rehab-secondary) !important;
+    color: var(--rehab-secondary) !important;
+}
+
+.badge.blue {
+    background: var(--rehab-accent) !important;
+}
+
+.badge.light {
+    background: #7dd3ce !important;
+    color: #064e3b !important;
+}
+
+.app-header,
+.admin-header,
+.hero-logo,
+.hero-copy,
+.phone-frame {
+    background: linear-gradient(135deg, #22d3ee, #7c3aed) !important;
+    color: white !important;
+}
+
+.app-screen {
+    color: #111827 !important;
+}
+
+.app-screen .summary-block,
+.app-screen .highlight-card,
+.app-screen .resource-card,
+.app-screen .feature-card,
+.app-screen .info-card,
+.app-screen .profile-card,
+.app-screen .benefit-block,
+.app-screen .admin-item,
+.app-screen .progress-card,
+.app-screen .activity-item,
+.app-screen .notification-list li,
+.app-screen .evidence-list li,
+.app-screen .card,
+.app-screen .admin-table,
+.app-screen .admin-table th,
+.app-screen .admin-table td,
+.app-screen .summary-block h2,
+.app-screen .summary-block h3,
+.app-screen .summary-block li,
+.app-screen .highlight-card strong,
+.app-screen .section-title,
+.app-screen .feature-card h3,
+.app-screen .resource-card h3,
+.app-screen .info-card strong,
+.app-screen .highlight-card strong,
+.app-screen .profile-card .status,
+.app-screen .activity-item strong {
+    color: #111827 !important;
+}
+
+.app-header p,
+.interface-header .subtitle,
+.interface-header .role-note,
+.hero-copy p,
+.card-meta,
+.block p,
+.profile-item p,
+.benefit-block p,
+.message-text,
+.notification-list small {
+    color: var(--rehab-muted) !important;
+}
+
+.card.technical-map h2,
+.section-title,
+.block strong,
+.feature-card h3,
+.resource-card h3,
+.info-card strong,
+.highlight-card strong,
+.profile-card .status,
+.activity-item strong,
+.resource-card h3,
+.summary-block h2 {
+    color: var(--rehab-secondary) !important;
+}
+
+.search-form input:focus,
+.button:hover,
+.link-button:hover,
+.button.primary:hover,
+.primary:hover,
+.grid-button.filled:hover,
+.actions-row .primary:hover,
+.actions-row .secondary:hover,
+button.outline:hover,
+.outline:hover {
+    background: #0d9488 !important;
+    border-color: #0d9488 !important;
+    color: white !important;
+}
+
+.progress-fill {
+    background: var(--rehab-secondary) !important;
+}
+
+.flash {
+    background: #ecfeff !important;
+    border: 1px solid #7dd3fc !important;
+    color: #0f172a !important;
+}
+
+.hero-logo,
+.phone-frame,
+.app-screen,
+.summary-block,
+.resources-section,
+.profile-card,
+.card,
+.feature-card,
+.resource-card,
+.highlight-card,
+.admin-item,
+.progress-card,
+.activity-item {
+    border-radius: 24px !important;
+}
+
+.hero {
+    border: 1px solid rgba(20, 184, 166, 0.16) !important;
+}
+
+.hero-logo {
+    background: #d9f7f2 !important;
+}
+
+.hero-letter {
+    color: rgba(124, 58, 237, 0.15) !important;
+}
+
+input,
+textarea,
+select,
+.admin-action-form input,
+.admin-action-form textarea,
+.login-form input,
+.login-form select {
+    border: 1px solid rgba(20, 184, 166, 0.25) !important;
+}
+
+button,
+.link-button,
+.primary,
+.outline,
+.button,
+.grid-button.filled,
+.grid-button.outline {
+    transition: transform .2s ease, background .2s ease, border-color .2s ease !important;
+}
+
+button:hover,
+.link-button:hover,
+.grid-button.filled:hover,
+.grid-button.outline:hover,
+.actions-row .primary:hover,
+.actions-row .secondary:hover {
+    transform: translateY(-1px) !important;
+}

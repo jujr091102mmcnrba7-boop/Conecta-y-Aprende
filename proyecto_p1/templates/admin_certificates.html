@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Certificados Pendientes</h2>
+    <p>Revisa y autoriza o rechaza los certificados que han sido generados automáticamente.</p>
+    {% if not certificates %}
+    <p>No hay certificados pendientes por el momento.</p>
+    {% else %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Correo</th>
+                <th>Certificado</th>
+                <th>Estado</th>
+                <th>Comentarios</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cert in certificates %}
+            <tr>
+                <td>{{ cert[1] }}</td>
+                <td>{{ cert[2] }}</td>
+                <td>{{ cert[3] }}</td>
+                <td>{{ cert[4] }}</td>
+                <td>{{ cert[5] or 'Sin comentarios' }}</td>
+                <td>
+                    <form action="{{ url_for('admin_process_certificate', cert_id=cert[0]) }}" method="post" class="admin-action-form">
+                        <textarea name="admin_comments" placeholder="Comentarios para el usuario..." rows="3">{{ cert[5] or '' }}</textarea>
+                        <button type="submit" name="action" value="approve" class="primary">Autorizar</button>
+                        <button type="submit" name="action" value="reject" class="outline">Rechazar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <div class="actions">
+        <a class="outline" href="{{ url_for('home') }}">Volver al inicio</a>
+    </div>
+</div>
+{% endblock %}

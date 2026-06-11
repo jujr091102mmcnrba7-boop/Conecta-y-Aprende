@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Historial de Acciones</h2>
+    <p>Revisa todas las acciones registradas en el sistema.</p>
+    {% if not history %}
+    <p>No hay registros de historial.</p>
+    {% else %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Acción</th>
+                <th>Entidad</th>
+                <th>Detalle</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in history %}
+            <tr>
+                <td>{{ item[0] }}</td>
+                <td>{{ item[1] }}</td>
+                <td>{{ item[2] }}</td>
+                <td>{{ item[3] or '-' }} {{ item[4] or '' }}</td>
+                <td>{{ item[5] or '-' }}</td>
+                <td>{{ item[6] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <div class="actions">
+        <a class="outline" href="{{ url_for('admin_users') }}">Volver al panel</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='interface8.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="app-screen">
+            <section class="app-header admin-header">
+                <div class="brand">
+                    <div class="brand-icon">⚙️</div>
+                    <div>
+                        <h1>Panel Admin</h1>
+                        <p>Gestión del sistema</p>
+                    </div>
+                </div>
+            </section>
+            <section class="card motivational-card">
+                <div class="summary-block">
+                    <h2>Objetivos del sistema</h2>
+                    <ul>
+                        <li>Garantizar un entorno seguro.</li>
+                        <li>Mantener información actualizada.</li>
+                        <li>Facilitar el acceso al aprendizaje.</li>
+                        <li>Supervisar el progreso.</li>
+                        <li>Mejorar la experiencia del usuario.</li>
+                        <li>Promover la inclusión.</li>
+                        <li>Organizar recursos educativos.</li>
+                        <li>Impulsar el desarrollo humano.</li>
+                        <li>Brindar oportunidades reales de superación.</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="section-title">GESTIÓN DE USUARIOS</section>
+            <div class="admin-list">
+                <div class="admin-item">
+                    <span class="icon">👥</span>
+                    <div>
+                        <strong>Gestionar Cuentas</strong>
+                        <p>Crear, editar, activar o eliminar cuentas de usuarios.</p>
+                    </div>
+                </div>
+                <div class="admin-item">
+                    <span class="icon">📈</span>
+                    <div>
+                        <strong>Ver Estadísticas</strong>
+                        <p>Monitorear progreso global y desempeño de estudiantes.</p>
+                    </div>
+                </div>
+            </div>
+            <section class="section-title">GESTIÓN DE CONTENIDO</section>
+            <div class="admin-list">
+                <div class="admin-item">
+                    <span class="icon">📚</span>
+                    <div>
+                        <strong>Crear Cursos</strong>
+                        <p>Diseñar nuevos cursos y módulos de aprendizaje.</p>
+                    </div>
+                </div>
+                <div class="admin-item">
+                    <span class="icon">📅</span>
+                    <div>
+                        <strong>Organizar Eventos</strong>
+                        <p>Crear y gestionar actividades y talleres comunitarios.</p>
+                    </div>
+                </div>
+                <div class="admin-item">
+                    <span class="icon">💰</span>
+                    <div>
+                        <strong>Sistema de Recompensas</strong>
+                        <p>Configurar incentivos económicos y constancias.</p>
+                    </div>
+                </div>
+            </div>
+            <section class="section-title">SEGUIMIENTO DE ACTIVIDADES</section>
+            <div class="admin-list">
+                <div class="admin-item">
+                    <span class="icon">📁</span>
+                    <div>
+                        <strong>Monitorear Evidencias</strong>
+                        <p>Ver las evidencias subidas por cada usuario y su historial.</p>
+                    </div>
+                </div>
+            </div>
+            <section class="action-row">
+                <a class="primary" href="{{ url_for('admin_users') }}">Gestionar usuarios</a>
+                <a class="outline" href="{{ url_for('admin_evidence_monitor') }}">Monitorear evidencias</a>
+                <a class="outline" href="{{ url_for('admin_active_date') }}">Fecha activa</a>
+                <a class="outline" href="{{ url_for('reportes') }}">Reportes</a>
+                <a class="outline" href="{{ url_for('admin_contact_messages') }}">Mensajes de contacto</a>
+            </section>
+        </main>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Solicitud de Préstamo</h2>
+    <p>Completa los datos para enviar tu solicitud de préstamo al administrador.</p>
+    {% if error %}
+    <div class="flash">{{ error }}</div>
+    {% endif %}
+    <form action="{{ url_for('request_loan') }}" method="post" class="admin-action-form">
+        <label for="cantidad">Monto</label>
+        <input type="text" name="cantidad" id="cantidad" value="{{ cantidad or '' }}" required>
+
+        <label for="interes">Interés (%)</label>
+        <input type="text" name="interes" id="interes" value="{{ interes or '0' }}">
+
+        <label for="plazo">Plazo (meses)</label>
+        <input type="text" name="plazo" id="plazo" value="{{ plazo or '0' }}">
+
+        <label for="referencia">Referencia</label>
+        <input type="text" name="referencia" id="referencia" value="{{ referencia or '' }}">
+
+        <label for="comentario">Comentario</label>
+        <textarea name="comentario" id="comentario" rows="4">{{ comentario or '' }}</textarea>
+
+        <button type="submit" class="primary">Enviar solicitud</button>
+    </form>
+    <div class="actions">
+        <a class="outline" href="{{ url_for('user_activity_dashboard') }}">Volver a Mi Actividad</a>
+    </div>
+</div>
+{% endblock %}

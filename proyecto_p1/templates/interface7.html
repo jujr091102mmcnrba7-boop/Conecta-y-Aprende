@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='interface7.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="app-screen">
+            <section class="app-header">
+                <div class="brand">
+                    <div class="brand-icon">👤</div>
+                    <div>
+                        <h1>Mi Perfil</h1>
+                        <p>Tu información y progreso</p>
+                    </div>
+                </div>
+            </section>
+            <section class="card motivational-card">
+                <div class="summary-block">
+                    <h2>Normas de convivencia</h2>
+                    <ul>
+                        <li>Respeta a todos.</li>
+                        <li>Escucha con empatía.</li>
+                        <li>Sé amable.</li>
+                        <li>Comparte tus conocimientos.</li>
+                        <li>Evita comentarios ofensivos.</li>
+                        <li>Ayuda cuando puedas.</li>
+                        <li>Celebra los logros ajenos.</li>
+                        <li>Mantén una actitud positiva.</li>
+                        <li>Juntos aprendemos mejor.</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="profile-card">
+                <div class="avatar">🎓</div>
+                <h2>{% if user %}{{ user.nombre }}{% else %}Tu nombre{% endif %}</h2>
+                <p class="meta">{% if user %}{{ user.role|capitalize }}{% else %}Estudiante{% endif %} • Nivel 3</p>
+                <p class="status">🌱 En tu camino de recuperación y transformación</p>
+            </section>
+            <section class="section-title">MI APRENDIZAJE</section>
+            <div class="progress-cards">
+                <div class="progress-card">
+                    <div class="card-header">🖥️ <strong>{{ progress_bars.digital_label }}</strong></div>
+                    <div class="progress-bar"><div class="fill" style="width: {{ progress_bars.digital_progress }}%;"></div></div>
+                    <div class="card-footer"><span>{{ progress_bars.digital_progress }}%</span><span>Avanzando</span></div>
+                </div>
+                <div class="progress-card">
+                    <div class="card-header">🏰 <strong>{{ progress_bars.craft_label }}</strong></div>
+                    <div class="progress-bar"><div class="fill" style="width: {{ progress_bars.craft_progress }}%;"></div></div>
+                    <div class="card-footer"><span>{{ progress_bars.craft_progress }}%</span><span>Avanzando</span></div>
+                </div>
+            </div>
+            <section class="metrics-row">
+                <div><span>🏆</span><strong>{{ certificate_count or 0 }}</strong><p>Certificados</p></div>
+                <div><span>⏳</span><strong>{{ pending_certificates or 0 }}</strong><p>Esperando</p></div>
+                <div><span>⭐</span><strong>{{ progress or 0 }}%</strong><p>Progreso</p></div>
+            </section>
+            <section class="highlight-block">
+                <strong>{% if user %}{{ user.nombre }}{% else %}Tu{% endif %} siguiente meta:</strong>
+                <p>Sube evidencia y hazla visible para que el administrador autorice el avance.</p>
+            </section>
+            <section class="action-row">
+                <a class="primary" href="{{ url_for('certificados') }}">Ver Certificados</a>
+                <a class="outline" href="{{ url_for('profile_edit') }}">Editar Perfil</a>
+            </section>
+        </main>
+{% endblock %}

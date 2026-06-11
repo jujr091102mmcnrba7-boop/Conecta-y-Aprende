@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="home-shell">
+    <section class="hero">
+        <div class="hero-logo">
+            <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo Conecta y Aprende" class="hero-logo-image">
+        </div>
+        <div class="hero-copy">
+            <h1>Conecta y Aprende</h1>
+            <p>{{ role_message }}</p>
+            {% if user %}
+            <p class="welcome-note">Bienvenido {{ user.nombre }} — Rol: <strong>{{ role_label }}</strong></p>
+            {% endif %}
+            <form action="{{ url_for('search') }}" method="get" class="search-form">
+                <input type="text" name="q" placeholder="Busca actividades, transferencias, préstamos..." value="{{ request.args.get('q','') }}">
+            </form>
+        </div>
+    </section>
+
+    <section class="cards">
+        {% for i in allowed_pages %}
+        <a class="card" href="{{ url_for('interface_page', number=i) }}">
+            <span class="card-title">{{ page_titles[i] }}</span>
+            <span class="card-meta">{{ page_summaries[i] }}</span>
+        </a>
+        {% endfor %}
+    </section>
+
+    <section class="links">
+        {% for action in role_actions %}
+        <a class="secondary" href="{{ url_for(action.endpoint) }}">{{ action.label }}</a>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='interface3.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="app-screen">
+            <section class="app-header">
+                <div class="brand">
+                    <div class="brand-icon">⚙️</div>
+                    <div>
+                        <h1>Funcionalidad...</h1>
+                        <p>Lo que puedes hacer</p>
+                    </div>
+                </div>
+            </section>
+            <section class="card motivational-card">
+                <div class="summary-block">
+                    <h2>Tips de estudio</h2>
+                    <ul>
+                        <li>Estudia en sesiones cortas.</li>
+                        <li>Toma apuntes.</li>
+                        <li>Repasa frecuentemente.</li>
+                        <li>Utiliza videos y guías.</li>
+                        <li>Haz preguntas.</li>
+                        <li>Organiza tu tiempo.</li>
+                        <li>Evita distracciones.</li>
+                        <li>Celebra tus avances.</li>
+                        <li>Aprende a tu propio ritmo.</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="section-title">SECCIONES PRINCIPALES</section>
+            <div class="resource-grid">
+                <article class="resource-card">
+                    <img src="{{ url_for('static', filename='images/cursos.jpeg') }}" alt="Cursos" class="resource-preview">
+                    <div>
+                        <h3>Cursos</h3>
+                        <p>Temas de aprendizaje en habilidades digitales, oficios y cultura con niveles progresivos.</p>
+                        <div class="button-row">
+                            <button type="button" class="link-button modal-trigger" data-type="image" data-image="{{ url_for('static', filename='images/cursos.jpeg') }}" data-title="Cursos">Abrir recurso</button>
+                            <a class="link-button" href="{{ url_for('static', filename='images/cursos.jpeg') }}" download="cursos.jpeg">Descargar recurso</a>
+                        </div>
+                    </div>
+                </article>
+                <article class="resource-card">
+                    <img src="{{ url_for('static', filename='images/recursos.jpeg') }}" alt="Recursos" class="resource-preview">
+                    <div>
+                        <h3>Recursos</h3>
+                        <p>Videos, guías y documentos para aprender a tu propio ritmo.</p>
+                        <div class="button-row">
+                            <button type="button" class="link-button modal-trigger" data-type="image" data-image="{{ url_for('static', filename='images/recursos.jpeg') }}" data-title="Recursos">Abrir recurso</button>
+                            <button type="button" class="link-button modal-trigger" data-type="manual" data-content="manual-recursos" data-title="Manual rápido">Abrir manual</button>
+                        </div>
+                    </div>
+                </article>
+                <article class="resource-card">
+                    <img src="{{ url_for('static', filename='images/eventos.jpeg') }}" alt="Eventos" class="resource-preview">
+                    <div>
+                        <h3>Eventos</h3>
+                        <p>Actividades, talleres y encuentros comunitarios para interactuar.</p>
+                        <div class="button-row">
+                            <button type="button" class="link-button modal-trigger" data-type="image" data-image="{{ url_for('static', filename='images/eventos.jpeg') }}" data-title="Eventos">Abrir recurso</button>
+                            <button type="button" class="link-button modal-trigger" data-type="presentation" data-content="presentation-dif" data-title="Centros DIF cercanos">Ver ubicaciones</button>
+                        </div>
+                    </div>
+                </article>
+                <article class="resource-card">
+                    <div class="resource-preview contact-icon">📬</div>
+                    <div>
+                        <h3>Contacto</h3>
+                        <p>Escribe a conectayaprende40@gmail.com o abre el formulario para enviar tu mensaje.</p>
+                        <div class="button-row">
+                            <a class="link-button" href="mailto:conectayaprende40@gmail.com">Enviar correo</a>
+                            <a class="link-button" href="{{ url_for('contact') }}">Abrir formulario</a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <section class="section-title">BENEFICIOS DE RECUPERACIÓN</section>
+            <div class="benefit-list">
+                <div class="benefit-highlight">
+                    <span class="icon">💚</span>
+                    <div>
+                        <strong>Recuperación Personal:</strong>
+                        <p>Apoyo integral en tu transformación</p>
+                    </div>
+                </div>
+                <div class="benefit-item"><span class="icon">💰</span><p>Sistema de recompensas económicas verificables</p></div>
+                <div class="benefit-item"><span class="icon">📜</span><p>Constancias digitales de logros</p></div>
+                <div class="benefit-item"><span class="icon">📈</span><p>Progreso personalizado a tu ritmo</p></div>
+                <div class="benefit-item"><span class="icon">🎯</span><p>Oportunidades reales de empleo</p></div>
+            </div>
+            <section class="action-row">
+                <a class="primary" href="{{ url_for('contact') }}">Contacto</a>
+                <a class="outline" href="{{ url_for('actividades_disponibles') }}">Ver actividades</a>
+            </section>
+        </main>
+
+        <div class="image-modal" id="contentModal" aria-hidden="true">
+            <div class="modal-backdrop" id="modalBackdrop"></div>
+            <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+                <button class="modal-close" id="modalClose" type="button">×</button>
+                <h2 id="modalTitle"></h2>
+                <div id="modalBody" class="modal-body"></div>
+            </div>
+        </div>
+
+        <template id="manual-recursos">
+            <div>
+                <p><strong>Manual rápido de Recursos</strong></p>
+                <p>En esta sección puedes acceder a videos, guías y documentos para avanzar paso a paso.</p>
+                <ol>
+                    <li>Selecciona el recurso que necesites.</li>
+                    <li>Abre la imagen o el contenido disponible.</li>
+                    <li>Sigue las instrucciones de cada guía o video.</li>
+                    <li>Si tienes dudas, escribe al administrador mediante el formulario de contacto.</li>
+                </ol>
+            </div>
+        </template>
+
+        <template id="presentation-dif">
+            <div>
+                <p><strong>Centros DIF cercanos en Villa Victoria</strong></p>
+                <ul>
+                    <li><strong>DIF Villa Victoria Centro</strong><br>Av. de la Comunidad 123, Villa Victoria</li>
+                    <li><strong>DIF Centro Comunitario Xochitlán</strong><br>Calle Reforma 45, Villa Victoria</li>
+                    <li><strong>DIF Casa de la Cultura</strong><br>Calle Hidalgo 12, Villa Victoria</li>
+                </ul>
+                <p>Visita el centro más cercano para recibir apoyo comunitario y orientación.</p>
+            </div>
+        </template>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modal = document.getElementById('contentModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalBody = document.getElementById('modalBody');
+                const closeBtn = document.getElementById('modalClose');
+                const backdrop = document.getElementById('modalBackdrop');
+
+                document.querySelectorAll('.modal-trigger').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const type = this.dataset.type || 'image';
+                        const title = this.dataset.title || 'Recurso';
+                        modalTitle.textContent = title;
+                        modalBody.innerHTML = '';
+
+                        if (type === 'image') {
+                            const img = document.createElement('img');
+                            img.src = this.dataset.image;
+                            img.alt = title;
+                            img.style.width = '100%';
+                            img.style.borderRadius = '18px';
+                            modalBody.appendChild(img);
+                        } else {
+                            const templateId = this.dataset.content;
+                            const template = document.getElementById(templateId);
+                            if (template) {
+                                modalBody.appendChild(template.content.cloneNode(true));
+                            }
+                        }
+
+                        modal.classList.add('visible');
+                        modal.setAttribute('aria-hidden', 'false');
+                    });
+                });
+
+                function closeModal() {
+                    modal.classList.remove('visible');
+                    modal.setAttribute('aria-hidden', 'true');
+                    modalBody.innerHTML = '';
+                }
+
+                closeBtn.addEventListener('click', closeModal);
+                backdrop.addEventListener('click', closeModal);
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape' && modal.classList.contains('visible')) {
+                        closeModal();
+                    }
+                });
+            });
+        </script>
+    
+{% endblock %}

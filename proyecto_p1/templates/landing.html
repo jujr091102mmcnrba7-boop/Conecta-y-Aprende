@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="home-shell">
+    <section class="hero">
+        <div class="hero-logo">
+            <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo Conecta y Aprende" class="hero-logo-image">
+        </div>
+        <div class="hero-copy">
+            <h1>Conecta y Aprende</h1>
+            <p>{{ role_message }}</p>
+            <div class="actions">
+                <a class="button primary" href="{{ url_for('login') }}">Iniciar sesión</a>
+                <a class="button outline" href="{{ url_for('register') }}">Registrarme</a>
+            </div>
+            <form action="{{ url_for('search') }}" method="get" class="search-form">
+                <input type="text" name="q" placeholder="Buscar en la app..." autofocus>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

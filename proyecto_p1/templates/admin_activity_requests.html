@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Solicitudes de Actividad</h2>
+    <p>Revisa, acepta o rechaza las solicitudes generadas por los usuarios.</p>
+    {% if not requests %}
+    <p>No hay solicitudes por el momento.</p>
+    {% else %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Actividad</th>
+                <th>Descripción</th>
+                <th>Disponibilidad</th>
+                <th>Estado</th>
+                <th>Instrucciones</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>{{ req[1] }}<br><small>{{ req[2] }}</small><br><small>{{ req[3] }}</small></td>
+                <td>{{ req[4] }}</td>
+                <td>{{ req[5] }}</td>
+                <td>{{ req[6] }}</td>
+                <td>{{ req[8] }}</td>
+                <td>
+                    <strong>Instrucciones:</strong> {{ req[9] or 'Sin instrucciones' }}<br>
+                    <strong>Programa:</strong> {{ req[10] or 'No definido' }}<br>
+                    <strong>Reunión:</strong> {{ req[11] or 'No programada' }}<br>
+                    <strong>Inicio:</strong> {{ req[12] or 'Pendiente' }}
+                </td>
+                <td>
+                    <form action="{{ url_for('admin_process_request', request_id=req[0]) }}" method="post" class="admin-action-form">
+                        <input type="hidden" name="action_choice" id="action-choice-{{ req[0] }}" value="">
+                        <textarea name="admin_instructions" placeholder="Instrucciones para el usuario..." rows="3">{{ req[9] or '' }}</textarea>
+                        <textarea name="admin_schedule" placeholder="Material de apoyo, resumen semanal o enlace de videollamada..." rows="3">{{ req[10] or '' }}</textarea>
+                        <input type="text" name="meeting_info" placeholder="Datos de la reunión o taller municipal" value="{{ req[11] or '' }}">
+                        <input type="date" name="start_date" value="{{ req[12] or '' }}">
+                        <textarea name="weekly_plan" placeholder="Temas semanales (una línea por semana, hasta 16 semanas)" rows="4">{{ req[13] or '' }}</textarea>
+                        <button type="submit" name="action" value="accept" class="primary" onclick="document.getElementById('action-choice-{{ req[0] }}').value='accept'">Aceptar</button>
+                        <button type="submit" name="action" value="reject" class="outline" onclick="document.getElementById('action-choice-{{ req[0] }}').value='reject'">Rechazar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <div class="actions">
+        <a class="outline" href="{{ url_for('home') }}">Volver al inicio</a>
+    </div>
+</div>
+{% endblock %}

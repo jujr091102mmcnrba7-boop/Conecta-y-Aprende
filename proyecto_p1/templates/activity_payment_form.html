@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Pagar actividad</h2>
+    <p>Completa el pago para reservar tu participación en esta actividad.</p>
+
+    <div class="card">
+        <h3>{{ activity.name }}</h3>
+        <p>{{ activity.info }}</p>
+        <p><strong>Costo:</strong> ${{ activity.cost }}</p>
+    </div>
+
+    {% if error %}
+    <div class="flash">{{ error }}</div>
+    {% endif %}
+
+    <form action="" method="post" class="admin-action-form">
+        <input type="hidden" name="actividad" value="{{ activity.name }}">
+
+        <label for="cantidad">Cantidad pagada</label>
+        <input type="text" name="cantidad" id="cantidad" value="{{ activity.cost }}" required>
+
+        <label for="referencia">Referencia</label>
+        <input type="text" name="referencia" id="referencia" placeholder="Número de transacción o nota" required>
+
+        <label for="comentario">Información adicional</label>
+        <textarea name="comentario" id="comentario" rows="3">{{ comentario or '' }}</textarea>
+
+        <button type="submit" class="primary">Enviar pago</button>
+    </form>
+
+    <div class="actions">
+        <a class="outline" href="{{ url_for('actividades_disponibles') }}">Volver a actividades</a>
+    </div>
+</div>
+{% endblock %}

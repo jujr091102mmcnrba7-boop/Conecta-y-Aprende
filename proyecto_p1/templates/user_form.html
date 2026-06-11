@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-shell">
+    {% if user %}
+    <h2>Editar Usuario</h2>
+    {% else %}
+    <h2>Crear Usuario</h2>
+    {% endif %}
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    <form action="" method="post" class="login-form">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" name="nombre" id="nombre" value="{{ user.nombre if user else '' }}" required>
+
+        <label for="email">Correo electrónico</label>
+        <input type="email" name="email" id="email" value="{{ user.email if user else '' }}" {% if user %}readonly{% endif %} required>
+
+        <label for="role">Rol</label>
+        <select name="role" id="role" required>
+            {% for key, label in roles.items() %}
+            <option value="{{ key }}" {% if user and user.role == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="password">Contraseña {{ 'nueva' if user else '' }}</label>
+        <input type="password" name="password" id="password" {% if not user %}required{% endif %}>
+
+        <label class="checkbox-label"><input type="checkbox" name="active" value="1" {% if user and user.active %}checked{% endif %}> Cuenta activa</label>
+
+        <button type="submit" class="primary">{{ 'Actualizar' if user else 'Crear usuario' }}</button>
+    </form>
+</div>
+{% endblock %}

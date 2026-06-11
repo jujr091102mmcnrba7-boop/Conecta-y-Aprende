@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='interface9.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="app-screen">
+            <section class="status-bar">
+                <div>Solo emergencia · BAIT · 8:24</div>
+                <div>Wi-Fi · 📶 · 🔋</div>
+            </section>
+            <section class="app-header">
+                <div class="brand">
+                    <div class="brand-icon">💰</div>
+                    <div>
+                        <h1>Actividades pa...</h1>
+                        <p>Oportunidades de Ingresos e Integración Social</p>
+                    </div>
+                </div>
+            </section>
+            <section class="card motivational-card">
+                <div class="summary-block">
+                    <h2>Oficios prácticos</h2>
+                    <ul>
+                        <li>Los oficios generan ingresos rápidamente.</li>
+                        <li>Puedes emprender tu propio negocio.</li>
+                        <li>Son habilidades prácticas y útiles.</li>
+                        <li>La experiencia aumenta tus oportunidades.</li>
+                        <li>Muchos oficios tienen alta demanda.</li>
+                        <li>Puedes trabajar de forma independiente.</li>
+                        <li>Aprendes haciendo.</li>
+                        <li>Desarrollas creatividad.</li>
+                        <li>Mejoras tu calidad de vida.</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="category-grid">
+                <div class="grid-button filled">🏗️ Oficios</div>
+                <div class="grid-button outline">🎨 Arte</div>
+                <div class="grid-button outline">🖥️ Digital</div>
+                <div class="grid-button outline">🎪 Cultural</div>
+            </section>
+            <section class="section-title">ACTIVIDADES DISPONIBLES</section>
+            <section class="info-card">
+                <strong>Recuperación Productiva:</strong>
+                <p>Gana dinero mientras desarrollas competencias, generando independencia económica y reintegrándote socialmente.</p>
+            </section>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div>
+                        <strong>Reparación de Herrería</strong>
+                        <p>Trabajos en metal y estructuras</p>
+                        <small>Requisitos: Nivel 2+ • Tiempo: 2–3 horas</small>
+                    </div>
+                    <span class="badge pay">$80</span>
+                </div>
+                <div class="activity-item">
+                    <div>
+                        <strong>Instalación de Redes</strong>
+                        <p>Configuración de internet y cableado</p>
+                        <small>Requisitos: Nivel 3+ • Tiempo: 3–4 horas</small>
+                    </div>
+                    <span class="badge pay">$120</span>
+                </div>
+                <div class="activity-item">
+                    <div>
+                        <strong>Diseño Gráfico</strong>
+                        <p>Logos y materiales de marketing</p>
+                        <small>Requisitos técnicos ocultos en la base</small>
+                    </div>
+                    <span class="badge pay">$150</span>
+                </div>
+            </div>
+            <section class="action-row">
+                {% if can_request %}
+                <a class="primary" href="{{ url_for('solicitar_actividad') }}">Solicitar Actividad</a>
+                {% else %}
+                <a class="primary disabled" href="#">Solo lectura</a>
+                {% endif %}
+                <a class="outline" href="{{ url_for('actividades_disponibles') }}">Ver Más</a>
+            </section>
+        </main>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Responder mensaje de contacto</h2>
+    <p>Revisa el mensaje completo y deja una respuesta para el usuario.</p>
+
+    <div class="admin-detail-box">
+        <strong>ID:</strong> {{ message.id }}<br>
+        <strong>Usuario:</strong> {{ message.user_id or 'No registrado' }}<br>
+        <strong>Nombre:</strong> {{ message.name }}<br>
+        <strong>Correo:</strong> {{ message.email }}<br>
+        <strong>Asunto:</strong> {{ message.subject }}<br>
+        <strong>Estatus:</strong> {{ message.status }}<br>
+        <strong>Fecha:</strong> {{ message.created_at }}<br>
+    </div>
+
+    <div class="admin-detail-box">
+        <h3>Mensaje recibido</h3>
+        <p>{{ message.message }}</p>
+    </div>
+
+    {% if message.admin_response %}
+    <div class="admin-detail-box">
+        <h3>Respuesta previa</h3>
+        <p>{{ message.admin_response }}</p>
+        <p><strong>Respondido:</strong> {{ message.responded_at }}</p>
+    </div>
+    {% endif %}
+
+    <form action="{{ url_for('admin_contact_message_detail', message_id=message.id) }}" method="post" class="admin-action-form">
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+        <label for="response_text">Respuesta para el usuario</label>
+        <textarea id="response_text" name="response_text" rows="5">{{ message.admin_response or '' }}</textarea>
+
+        <label for="status">Estatus del mensaje</label>
+        <select id="status" name="status">
+            <option value="nuevo" {% if message.status == 'nuevo' %}selected{% endif %}>Nuevo</option>
+            <option value="en proceso" {% if message.status == 'en proceso' %}selected{% endif %}>En proceso</option>
+            <option value="respondido" {% if message.status == 'respondido' %}selected{% endif %}>Respondido</option>
+        </select>
+
+        <button type="submit" class="primary">Guardar respuesta</button>
+    </form>
+
+    <div class="actions">
+        <a class="outline" href="{{ url_for('admin_contact_messages') }}">Volver a mensajes</a>
+        <a class="outline" href="{{ url_for('admin_users') }}">Volver al panel</a>
+    </div>
+</div>
+{% endblock %}

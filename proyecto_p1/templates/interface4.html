@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='interface4.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="app-screen">
+            <section class="app-header">
+                <div class="brand">
+                    <div class="brand-icon">📚</div>
+                    <div>
+                        <h1>Niveles de Ap...</h1>
+                        <p>Progresión personalizada</p>
+                    </div>
+                </div>
+            </section>
+            <section class="card motivational-card">
+                <div class="summary-block">
+                    <h2>Datos interesantes</h2>
+                    <ul>
+                        <li>Los oficios generan ingresos rápidamente.</li>
+                        <li>Puedes emprender tu propio negocio.</li>
+                        <li>Son habilidades prácticas y útiles.</li>
+                        <li>La experiencia aumenta tus oportunidades.</li>
+                        <li>Muchos oficios tienen alta demanda.</li>
+                        <li>Puedes trabajar de forma independiente.</li>
+                        <li>Aprendes haciendo.</li>
+                        <li>Desarrollas creatividad.</li>
+                        <li>Mejoras tu calidad de vida.</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="intro-text">
+                <h2>Diseño Progresivo</h2>
+                <p>Cada nivel con habilidades específicas que te permiten avanzar a tu propio ritmo.</p>
+            </section>
+            <section class="sections-title">ÁREAS DE APRENDIZAJE</section>
+            <div class="cards-grid">
+                <div class="study-card">
+                    <img src="{{ url_for('static', filename='images/digital.jpeg') }}" alt="Habilidades Digitales" class="resource-preview">
+                    <div class="card-header"><span>🖥️</span><strong>Habilidades Digitales</strong></div>
+                    <p>Uso de computadora, internet, seguridad digital y ofimática.</p>
+                    <div class="progress"><div class="fill fill-30"></div></div>
+                    <div class="card-footer"><span>6 módulos</span><span>Básico</span></div>
+                    <div class="button-row">
+                        <button type="button" class="link-button modal-trigger" data-type="image" data-image="{{ url_for('static', filename='images/digital.jpeg') }}" data-title="Habilidades Digitales">Abrir recurso</button>
+                        <a class="link-button" href="{{ url_for('static', filename='images/digital.jpeg') }}" download="digital.jpeg">Descargar recurso</a>
+                    </div>
+                </div>
+                <div class="study-card">
+                    <img src="{{ url_for('static', filename='images/oficios.jpeg') }}" alt="Oficios Laborales" class="resource-preview">
+                    <div class="card-header"><span>🏰</span><strong>Oficios Laborales</strong></div>
+                    <p>Competencias prácticas para el mercado laboral y emprendimiento.</p>
+                    <div class="progress"><div class="fill fill-45"></div></div>
+                    <div class="card-footer"><span>6 oficios</span><span>3 niveles</span></div>
+                    <div class="button-row">
+                        <button type="button" class="link-button modal-trigger" data-type="image" data-image="{{ url_for('static', filename='images/oficios.jpeg') }}" data-title="Oficios Laborales">Abrir recurso</button>
+                        <button type="button" class="link-button modal-trigger" data-type="manual" data-content="manual-oficios" data-title="Guía de oficio">Abrir guía</button>
+                    </div>
+                </div>
+                <div class="study-card">
+                    <img src="{{ url_for('static', filename='images/cultura.jpeg') }}" alt="Arte y Cultura" class="resource-preview">
+                    <div class="card-header"><span>🧠</span><strong>Arte y Cultura</strong></div>
+                    <p>Patrimonio cultural local, expresión artística e identidad.</p>
+                    <div class="progress"><div class="fill fill-60"></div></div>
+                    <div class="card-footer"><span>Múltiples</span><span>Avanzado</span></div>
+                    <div class="button-row">
+                        <button type="button" class="link-button modal-trigger" data-type="image" data-image="{{ url_for('static', filename='images/cultura.jpeg') }}" data-title="Arte y Cultura">Abrir recurso</button>
+                        <button type="button" class="link-button modal-trigger" data-type="presentation" data-content="presentation-dif" data-title="Centros DIF cercanos">Ver ubicaciones</button>
+                    </div>
+                </div>
+            </div>
+            <section class="highlight-block">
+                <strong>Sistema de Recompensas:</strong>
+                <p>Obtén dinero y constancias completando módulos y alcanzando metas.</p>
+            </section>
+        </main>
+
+        <div class="image-modal" id="contentModal" aria-hidden="true">
+            <div class="modal-backdrop" id="modalBackdrop"></div>
+            <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+                <button class="modal-close" id="modalClose" type="button">×</button>
+                <h2 id="modalTitle"></h2>
+                <div id="modalBody" class="modal-body"></div>
+            </div>
+        </div>
+
+        <template id="manual-oficios">
+            <div>
+                <p><strong>Guía rápida de Oficios</strong></p>
+                <p>Esta guía describe cómo avanzar en los oficios y qué pasos seguir dentro de la plataforma.</p>
+                <ol>
+                    <li>Revisa cada oficio disponible.</li>
+                    <li>Selecciona el nivel y sigue los ejercicios propuestos.</li>
+                    <li>Aplica lo aprendido con ejemplos prácticos.</li>
+                    <li>Consulta a tu tutor o administrador si necesitas apoyo.</li>
+                </ol>
+            </div>
+        </template>
+
+        <template id="presentation-dif">
+            <div>
+                <p><strong>Centros DIF cercanos en Villa Victoria</strong></p>
+                <ul>
+                    <li><strong>DIF Villa Victoria Centro</strong><br>Av. de la Comunidad 123, Villa Victoria</li>
+                    <li><strong>DIF Centro Comunitario Xochitlán</strong><br>Calle Reforma 45, Villa Victoria</li>
+                    <li><strong>DIF Casa de la Cultura</strong><br>Calle Hidalgo 12, Villa Victoria</li>
+                </ul>
+                <p>Acércate a estos centros para obtener apoyo social y servicios comunitarios.</p>
+            </div>
+        </template>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modal = document.getElementById('contentModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalBody = document.getElementById('modalBody');
+                const closeBtn = document.getElementById('modalClose');
+                const backdrop = document.getElementById('modalBackdrop');
+
+                document.querySelectorAll('.modal-trigger').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const type = this.dataset.type || 'image';
+                        const title = this.dataset.title || 'Recurso';
+                        modalTitle.textContent = title;
+                        modalBody.innerHTML = '';
+
+                        if (type === 'image') {
+                            const img = document.createElement('img');
+                            img.src = this.dataset.image;
+                            img.alt = title;
+                            img.style.width = '100%';
+                            img.style.borderRadius = '18px';
+                            modalBody.appendChild(img);
+                        } else {
+                            const templateId = this.dataset.content;
+                            const template = document.getElementById(templateId);
+                            if (template) {
+                                modalBody.appendChild(template.content.cloneNode(true));
+                            }
+                        }
+
+                        modal.classList.add('visible');
+                        modal.setAttribute('aria-hidden', 'false');
+                    });
+                });
+
+                function closeModal() {
+                    modal.classList.remove('visible');
+                    modal.setAttribute('aria-hidden', 'true');
+                    modalBody.innerHTML = '';
+                }
+
+                closeBtn.addEventListener('click', closeModal);
+                backdrop.addEventListener('click', closeModal);
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape' && modal.classList.contains('visible')) {
+                        closeModal();
+                    }
+                });
+            });
+        </script>
+{% endblock %}

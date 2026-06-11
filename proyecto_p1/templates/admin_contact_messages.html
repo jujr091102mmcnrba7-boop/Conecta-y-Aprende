@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Mensajes de contacto</h2>
+    <p>Revisa las solicitudes y preguntas enviadas por los usuarios.</p>
+    <div class="actions">
+        <a class="button outline" href="{{ url_for('admin_users') }}">Volver al panel</a>
+        <a class="button outline" href="{{ url_for('admin_evidence_monitor') }}">Monitorear evidencias</a>
+        <a class="button outline" href="{{ url_for('admin_active_date') }}">Fecha activa</a>
+    </div>
+
+    {% if messages %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Asunto</th>
+                <th>Mensaje</th>
+                <th>Estatus</th>
+                <th>Respondido</th>
+                <th>Fecha</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for message in messages %}
+            <tr>
+                <td>{{ message.id }}</td>
+                <td>{{ message.user_id or 'No registrado' }}</td>
+                <td>{{ message.name }}</td>
+                <td>{{ message.email }}</td>
+                <td>{{ message.subject }}</td>
+                <td class="message-text">{{ message.message }}</td>
+                <td>{{ message.status }}</td>
+                <td>{{ 'Sí' if message.admin_response else 'No' }}</td>
+                <td>{{ message.created_at }}</td>
+                <td><a class="button outline" href="{{ url_for('admin_contact_message_detail', message_id=message.id) }}">Responder</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="admin-detail-box">
+        No hay mensajes de contacto por revisar.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+body { background: #fff1f2; }
+
+.phone-shell { min-height: 100vh; padding: 40px 16px; display: flex; justify-content: center; align-items: center; }
+.phone-frame { width: 360px; background: #111827; border-radius: 40px; padding: 18px; box-shadow: 0 28px 90px rgba(15, 23, 42, .22); }
+.phone-notch { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: 110px; height: 24px; background: #111827; border-radius: 14px; }
+.app-screen {
+    background: white;
+    border-radius: 32px;
+    padding: 24px;
+    max-width: 1120px;
+    margin: 24px auto;
+    width: min(100%, 1120px);
+}
+.admin-header { background: #fb7185; border-radius: 24px; padding: 18px; color: white; margin-bottom: 16px; }
+.brand { display: flex; gap: 12px; align-items: center; }
+.brand-icon { width: 44px; height: 44px; border-radius: 16px; background: rgba(255,255,255,.18); display: grid; place-items: center; font-size: 1.6rem; }
+.badges-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.badge { padding: 8px 12px; border-radius: 999px; color: white; font-size: .78rem; }
+.badge.coral { background: #f43f5e; }
+.badge.orange { background: #fb7185; }
+.badge.light { background: #fbcfe8; color: #831843; }
+.highlight-card { background: #fff1f2; border-radius: 24px; padding: 18px; margin-bottom: 18px; border-left: 5px solid #f43f5e; }
+.highlight-card strong { display: block; color: #b91c1c; margin-bottom: 8px; }
+.highlight-card p { margin: 0; color: #475569; line-height: 1.6; }
+.section-title { margin: 0 0 12px; color: #fb7185; text-transform: uppercase; letter-spacing: .08em; font-size: .95rem; }
+.admin-list { display: grid; gap: 12px; margin-bottom: 18px; }
+.admin-item { display: flex; gap: 12px; padding: 14px; border-radius: 20px; background: #fdf2f8; }
+.admin-item .icon { width: 40px; height: 40px; background: #ffe4ec; border-radius: 14px; display: grid; place-items: center; font-size: 1.4rem; }
+.admin-item strong { display: block; margin-bottom: 6px; color: #111827; }
+.admin-item p { margin: 0; color: #475569; font-size: .88rem; line-height: 1.5; }
+.action-row { display: flex; gap: 12px; justify-content: center; }
+button { border: none; border-radius: 999px; padding: 12px 18px; font-weight: 700; cursor: pointer; }
+button.primary { background: #f43f5e; color: white; }
+button.outline { background: white; border: 1px solid #f43f5e; color: #f43f5e; }

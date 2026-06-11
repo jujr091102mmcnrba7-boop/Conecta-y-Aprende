@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>{{ 'Depositar efectivo' if tipo == 'deposito' else 'Retirar efectivo' }}</h2>
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    <form action="" method="post" class="login-form">
+        <label for="cantidad">Cantidad</label>
+        <input type="text" name="cantidad" id="cantidad" placeholder="Ej. 250.00" required>
+
+        <label for="referencia">Referencia</label>
+        <input type="text" name="referencia" id="referencia" placeholder="Número de transacción o nota" required>
+
+        <button type="submit" class="primary">Enviar solicitud</button>
+    </form>
+    <div class="actions">
+        <a class="outline" href="{{ url_for('user_activity_dashboard') }}">Volver a Mi Actividad</a>
+    </div>
+</div>
+{% endblock %}

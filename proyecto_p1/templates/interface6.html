@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='interface6.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="app-screen">
+            <section class="app-header">
+                <div class="brand">
+                    <div class="brand-icon">🚀</div>
+                    <div>
+                        <h1>Tu Futuro</h1>
+                        <p>Oportunidades de crecimiento</p>
+                    </div>
+                </div>
+            </section>
+            <section class="card motivational-card">
+                <div class="summary-block">
+                    <h2>Consejos tecnológicos</h2>
+                    <ul>
+                        <li>Usa contraseñas seguras.</li>
+                        <li>Actualiza tus programas.</li>
+                        <li>Verifica las fuentes de información.</li>
+                        <li>Haz copias de seguridad.</li>
+                        <li>Organiza tus archivos.</li>
+                        <li>Protege tus datos personales.</li>
+                        <li>Aprende atajos del teclado.</li>
+                        <li>Aprovecha recursos gratuitos.</li>
+                        <li>La tecnología es una herramienta para crecer.</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="section-title">BENEFICIOS DEL PROGRAMA</section>
+            <div class="benefits-list">
+                <div class="benefit capsule">
+                    <span class="icon">💪</span>
+                    <div>
+                        <strong>Recuperación y Transformación</strong>
+                        <p>Nuestro Corazón: Apoyo integral para personas en rehabilitación, facilitando recuperación personal, desarrollo de competencias y reintegración exitosa a la sociedad.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <span class="icon">💼</span>
+                    <div>
+                        <strong>Oportunidades Laborales</strong>
+                        <p>Habilidades prácticas para integrarse al mercado laboral o iniciar un negocio.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <span class="icon">💰</span>
+                    <div>
+                        <strong>Recompensas Económicas</strong>
+                        <p>Incentivos en períodos determinados por cumplimiento de metas y progreso.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <span class="icon">📜</span>
+                    <div>
+                        <strong>Constancias Verificables</strong>
+                        <p>Certificados digitales que validan tu participación y avance en cada nivel.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <span class="icon">🎯</span>
+                    <div>
+                        <strong>Desarrollo Personal</strong>
+                        <p>Mejora de autoestima, habilidades digitales y competencias profesionales.</p>
+                    </div>
+                </div>
+                <div class="benefit capsule">
+                    <span class="icon">🛡️</span>
+                    <div>
+                        <strong>Inclusión y Recuperación Social</strong>
+                        <p>Nuestro Enfoque Principal: Herramienta integral de integración comunitaria, superación personal y recuperación para personas en proceso de rehabilitación y reintegración social.</p>
+                    </div>
+                </div>
+            </div>
+            <section class="hero-block">
+                <span class="hero-icon">☀️</span>
+                <h3>Nuestra Misión de Recuperación</h3>
+                <p>Apoyar el camino de recuperación mediante educación digital inclusiva. Mejorando oportunidades, facilitando independencia económica, emprendimiento y reintegración social como herramienta de transformación personal.</p>
+            </section>
+            <section class="action-row">
+                <a class="primary" href="{{ url_for('register') }}">Inscribirse</a>
+                <a class="outline" href="{{ url_for('contact') }}">Contacto</a>
+            </section>
+        </main>
+{% endblock %}

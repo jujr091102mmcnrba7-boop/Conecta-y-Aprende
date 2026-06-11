@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='interface5.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="app-screen">
+            <section class="app-header">
+                <div class="brand">
+                    <div class="brand-icon">📅</div>
+                    <div>
+                        <h1>Cronograma</h1>
+                        <p>Desarrollo del proyecto</p>
+                    </div>
+                </div>
+            </section>
+            <section class="card motivational-card">
+                <div class="summary-block">
+                    <h2>Beneficios de participar</h2>
+                    <ul>
+                        <li>Conoces nuevas personas.</li>
+                        <li>Desarrollas habilidades sociales.</li>
+                        <li>Aprendes de expertos.</li>
+                        <li>Compartes experiencias.</li>
+                        <li>Fortaleces tu confianza.</li>
+                        <li>Descubres nuevos intereses.</li>
+                        <li>Creas redes de apoyo.</li>
+                        <li>Te mantienes motivado.</li>
+                        <li>Obtienes constancias.</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="intro-text">
+                <h2>Proyecto de 4 Meses</h2>
+                <p>Desarrollo Integral para Recuperación y Reintegración Social</p>
+                <p>Desarrollado por estudiantes de programación (4to semestre) con el DIF Municipal</p>
+            </section>
+            <section class="timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-item">
+                    <span class="node"></span>
+                    <div>
+                        <strong>Mes 1: Diseño y Planificación</strong>
+                        <p>Estructura del sitio web, diseño de interfaces y base de datos.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <span class="node"></span>
+                    <div>
+                        <strong>Mes 2: Desarrollo Base</strong>
+                        <p>Programación de módulos, sistema de usuarios y funcionalidades core.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <span class="node"></span>
+                    <div>
+                        <strong>Mes 3: Integración Completa</strong>
+                        <p>Sistema de recompensas, constancias, eventos y recursos multimedia.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <span class="node"></span>
+                    <div>
+                        <strong>Mes 4: Pruebas y Lanzamiento</strong>
+                        <p>Testing, ajustes finales y puesta en producción con usuarios reales.</p>
+                    </div>
+                </div>
+            </section>
+            <section class="highlight-block">
+                <strong>Enfoque DIF Municipal:</strong>
+                <p>Ubicación en Área de Prevención de Adicciones, apoyando recuperación y desarrollo personal.</p>
+            </section>
+        </main>
+{% endblock %}

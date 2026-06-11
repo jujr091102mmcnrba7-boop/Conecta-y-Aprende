@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Mensajes</h2>
+    {% if not notifications %}
+    <p>No tienes mensajes nuevos.</p>
+    {% else %}
+    <ul class="notification-list">
+        {% for note in notifications %}
+        <li>
+            <strong>{{ note[1] }}</strong>
+            <p>{{ note[2] }}</p>
+            <small>{{ note[4] }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="actions">
+        <a class="outline" href="{{ url_for('home') }}">Volver al inicio</a>
+        <a class="outline" href="{{ url_for('user_activity_dashboard') }}">Mi Actividad</a>
+    </div>
+</div>
+{% endblock %}

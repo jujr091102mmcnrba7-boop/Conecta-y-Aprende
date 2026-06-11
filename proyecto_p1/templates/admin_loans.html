@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Préstamos</h2>
+    <p>Revisa y gestiona las solicitudes de préstamo de los usuarios.</p>
+    {% if not loans %}
+    <p>No hay solicitudes de préstamo registradas.</p>
+    {% else %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Monto</th>
+                <th>Interés</th>
+                <th>Plazo</th>
+                <th>Estado</th>
+                <th>Referencia</th>
+                <th>Comentario</th>
+                <th>Actualizado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loan in loans %}
+            <tr>
+                <td>{{ loan[0] }}</td>
+                <td>{{ loan[1] }}</td>
+                <td>${{ '%.2f'|format(loan[2]) }}</td>
+                <td>{{ '%.2f'|format(loan[3]) }}%</td>
+                <td>{{ loan[4] }} meses</td>
+                <td>{{ loan[5] }}</td>
+                <td>{{ loan[6] or '-' }}</td>
+                <td>{{ loan[7] or '-' }}</td>
+                <td>{{ loan[9] }}</td>
+                <td>
+                    <form action="{{ url_for('admin_update_loan', loan_id=loan[0]) }}" method="post" class="admin-action-form">
+                        <textarea name="comentario" placeholder="Comentario breve..." rows="2">{{ loan[7] or '' }}</textarea>
+                        <button type="submit" name="estado" value="aprobado" class="primary">Aprobar</button>
+                        <button type="submit" name="estado" value="rechazado" class="outline">Rechazar</button>
+                        <button type="submit" name="estado" value="pagado" class="outline">Marcar pagado</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <div class="actions">
+        <a class="outline" href="{{ url_for('admin_users') }}">Volver al panel</a>
+    </div>
+</div>
+{% endblock %}

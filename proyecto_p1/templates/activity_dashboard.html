@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="simple-shell">
+    <h2>Mi Actividad</h2>
+
+    {% if not request_data %}
+    <p>No hay ninguna solicitud de actividad registrada.</p>
+    {% if can_request %}
+    <div class="actions">
+        <a class="outline" href="{{ url_for('actividades_disponibles') }}">Solicitar actividad</a>
+        <a class="outline" href="{{ url_for('home') }}">Volver al inicio</a>
+    </div>
+    {% else %}
+    <div class="card warning-card">
+        <h3>Rol de solo lectura</h3>
+        <p>Como alumno o docente, puedes navegar por el sistema, pero no solicitar actividades.</p>
+        <p>Tu registro y tus acciones siguen guardándose para el administrador.</p>
+    </div>
+    <div class="actions">
+        <a class="outline" href="{{ url_for('home') }}">Volver al inicio</a>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="card">
+        <h3>Actividad: {{ request_data.actividad }}</h3>
+        <p><strong>Estado:</strong> {{ request_data.estado|capitalize }}</p>
+        <p><strong>Disponibilidad:</strong> {{ request_data.disponibilidad }}</p>
+        <p><strong>Descripción de la solicitud:</strong> {{ request_data.descripcion }}</p>
+        <p><strong>Información adicional:</strong> {{ request_data.adicional or 'No hay datos adicionales.' }}</p>
+        {% if request_data.admin_instructions %}
+        <p><strong>Instrucciones del admin:</strong> {{ request_data.admin_instructions }}</p>
+        {% endif %}
+    </div>
+
+    {% if request_data.estado == 'aceptado' %}
+    <div class="card">
+        <h3>Programa de la actividad</h3>
+        <p><strong>Inicio del plan:</strong> {{ request_data.start_date or request_data.created_at.strftime('%Y-%m-%d') }}</p>
+        <p><strong>Semana actual:</strong> {{ current_week }} de 16</p>
+        <p><strong>Tema de la semana:</strong> {{ current_theme.theme }}</p>
+        <p><strong>Tarea diaria:</strong> {{ current_theme.task }}</p>
+        <p><strong>Material de apoyo:</strong> {{ request_data.program_notes or 'Revisa las indicaciones del administrador.' }}</p>
+        {% if request_data.meeting_info %}
+        <p><strong>Reunión programada:</strong> {{ request_data.meeting_info }}</p>
+        {% endif %}
+        <p class="note">Estas actividades se trabajan diariamente durante 16 semanas. Si no subes evidencia, se descontará de tu pago y tu progreso será reducido.</p>
+    </div>
+
+    {% if penalty_info.missing_weeks %}
+    <div class="card warning-card">
+        <h3>Advertencia de evidencia faltante</h3>
+        <p>No registraste evidencia durante {{ penalty_info.missing_weeks }} semana{{ "s" if penalty_info.missing_weeks != 1 else "" }} anteriores.</p>
+        <p>Se aplicó un descuento de ${{ '%.2f'|format(penalty_info.cash_penalty) }} en tu apoyo por cada semana sin evidencia.</p>
+        <p>Recuerda subir evidencia semanal para mantener tu progreso y completar el programa de 16 semanas.</p>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <h3>Progreso</h3>
+        <div class="progress-shell">
+            <div id="progressFill" class="progress-fill" data-progress="{{ progress|default(0) }}"></div>
+        </div>
+        <p>Avance estimado: {{ progress }}%</p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var progressBar = document.getElementById("progressFill");
+            if (progressBar) {
+                var progressValue = parseFloat(progressBar.dataset.progress) || 0;
+                progressBar.style.width = progressValue + "%";
+            }
+        });
+    </script>
+
+    <div class="card">
+        <h3>Evidencias semanales</h3>
+        {% if submitted_this_week %}
+        <p class="note">Ya registraste evidencia para esta semana. Puedes seleccionar un archivo, pero el sistema solo aceptará la próxima carga la próxima semana.</p>
+        {% endif %}
+        <form action="{{ url_for('submit_activity_evidence') }}" method="post" enctype="multipart/form-data">
+            <label for="evidencia">Describe tu avance o evidencia de la semana</label>
+            <textarea id="evidencia" name="evidencia" rows="4" required></textarea>
+            <label for="evidence_image">Sube una imagen de evidencia (opcional)</label>
+            <input type="file" id="evidence_image" name="evidence_image" accept="image/png, image/jpeg, image/gif">
+            <button type="submit" class="primary">Guardar evidencia</button>
+        </form>
+        {% if evidence_entries %}
+        <ul class="evidence-list">
+            {% for entry in evidence_entries %}
+            <li>
+                <strong>Semana {{ entry.week }} - {{ entry.fecha }}</strong><br>
+                {{ entry.evidencia or 'Sin descripción' }}
+                {% if entry.image_filename %}
+                <div class="evidence-preview">
+                    <img src="{{ url_for('static', filename='uploads/' ~ entry.image_filename) }}" alt="Evidencia" />
+                </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No has registrado evidencias todavía.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>Gestión de efectivo</h3>
+        <p>Puedes solicitar un depósito o un retiro relacionado con tu actividad.</p>
+        <div class="actions">
+            <a class="button primary" href="{{ url_for('deposit_cash') }}">Solicitar depósito</a>
+            <a class="button outline" href="{{ url_for('withdraw_cash') }}">Solicitar retiro</a>
+        </div>
+        {% if cash_transactions %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Estado</th>
+                    <th>Referencia</th>
+                    <th>Actualizado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in cash_transactions %}
+                <tr>
+                    <td>{{ tx[1] }}</td>
+                    <td>${{ '%.2f'|format(tx[2]) }}</td>
+                    <td>{{ tx[3] }}</td>
+                    <td>{{ tx[4] or '-' }}</td>
+                    <td>{{ tx[7] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>Préstamos</h3>
+        <p>Solicita un préstamo si necesitas apoyo financiero extra.</p>
+        <div class="actions">
+            <a class="button primary" href="{{ url_for('request_loan') }}">Solicitar préstamo</a>
+        </div>
+        {% if loans %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Monto</th>
+                    <th>Interés</th>
+                    <th>Plazo</th>
+                    <th>Estado</th>
+                    <th>Actualizado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loan in loans %}
+                <tr>
+                    <td>${{ '%.2f'|format(loan[1]) }}</td>
+                    <td>{{ '%.2f'|format(loan[2]) }}%</td>
+                    <td>{{ loan[3] }} meses</td>
+                    <td>{{ loan[4] }}</td>
+                    <td>{{ loan[8] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No tienes solicitudes de préstamo registradas.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>Historial de acciones</h3>
+        {% if action_history %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Acción</th>
+                    <th>Entidad</th>
+                    <th>Detalle</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in action_history %}
+                <tr>
+                    <td>{{ item[1] }}</td>
+                    <td>{{ item[2] or '-' }} {{ item[3] or '' }}</td>
+                    <td>{{ item[4] or '-' }}</td>
+                    <td>{{ item[5] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No hay registros de acciones todavía.</p>
+        {% endif %}
+    </div>
+    {% elif request_data.estado == 'rechazado' %}
+    <div class="card">
+        <h3>Solicitud rechazada</h3>
+        <p>Tu solicitud fue rechazada. Revisa tus mensajes para más información y vuelve a intentar si es necesario.</p>
+    </div>
+    {% else %}
+    <div class="card">
+        <h3>Solicitud pendiente</h3>
+        <p>Tu solicitud está en revisión. Pronto recibirás respuesta en tu panel de mensajes.</p>
+    </div>
+    {% endif %}
+
+    <div class="actions">
+        <a class="outline" href="{{ url_for('home') }}">Volver al inicio</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

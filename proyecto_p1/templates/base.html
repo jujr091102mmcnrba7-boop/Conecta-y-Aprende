@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conecta y Aprende</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    {% block head %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='rehab-theme.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="brand-bar">
+        <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo Conecta y Aprende" class="site-logo">
+        <div>
+            <h1>Conecta y Aprende</h1>
+            {% if session.get('role') %}
+            <p class="role-label">{{ user.nombre if user else '' }} | Rol: {{ session.get('role')|replace('_', ' ')|capitalize }}</p>
+            {% endif %}
+        </div>
+    </div>
+    <nav>
+        <a href="{{ url_for('home') }}">Inicio</a>
+        {% if session.get('role') %}
+        <a href="{{ url_for('profile') }}">Mi Perfil</a>
+        {% if session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin_users') }}">Panel Admin</a>
+        {% endif %}
+        <a href="{{ url_for('actividades_disponibles') }}">Actividades</a>
+        <a href="{{ url_for('user_notifications') }}">Mensajes{% if unread_notifications|default(0) > 0 %} ({{ unread_notifications }}){% endif %}</a>
+        <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+        {% else %}
+        <a href="{{ url_for('login') }}">Entrar</a>
+        <a href="{{ url_for('register') }}">Regístrate</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>

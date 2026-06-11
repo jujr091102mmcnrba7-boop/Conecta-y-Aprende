@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='interface1.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="app-screen">
+            <section class="app-header">
+                <div class="brand">
+                    <div class="brand-icon">🏠</div>
+                    <div>
+                        <h1>Bienvenido{% if user %}, {{ user.nombre }}{% endif %}</h1>
+                        <p>Plataforma de Educación Digital</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card motivational-card">
+                <div class="highlight-block">
+                    <h2>🌟 Dato del día</h2>
+                    <blockquote>"La educación es la herramienta más poderosa para cambiar tu vida."</blockquote>
+                </div>
+                <div class="summary-block">
+                    <h3>¿Sabías que?</h3>
+                    <ul>
+                        <li>✅ Aprender algo nuevo fortalece tu confianza.</li>
+                        <li>✅ La recuperación también implica crecimiento personal.</li>
+                        <li>✅ Un pequeño paso hoy puede transformar tu futuro.</li>
+                        <li>✅ La tecnología puede abrir nuevas oportunidades laborales.</li>
+                        <li>✅ Cada pequeño avance cuenta.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="content-block">
+                <h2>Conecta y Aprende</h2>
+                <p class="subtitle">Educación Digital para tu Recuperación y Desarrollo</p>
+            </section>
+
+            <section class="feature-block">
+                <span class="feature-icon">🛡️</span>
+                <h3>Apoyo Integral para Recuperación y Reintegración Social</h3>
+                <p>Un proyecto de transformación social diseñado para apoyarte en tu proceso de recuperación, desarrollo de nuevas habilidades y mejora de tu futuro.</p>
+            </section>
+
+            <section class="feature-block">
+                <span class="feature-icon">🎯</span>
+                <h3>Misión de Recuperación</h3>
+                <p class="small-title">Educación Inclusiva para la Transformación</p>
+                <p>Ofrecer programas accesibles y personalizados de habilidades digitales, oficios y cultura, enfocados en apoyar la recuperación personal y reintegración social de cada participante.</p>
+            </section>
+
+            <section class="tag-row">
+                <span>Recuperación</span>
+                <span>Habilidades Digitales</span>
+                <span>Oficios Prácticos</span>
+                <span>Cultura y Arte</span>
+            </section>
+
+            <section class="feature-block bottom-block">
+                <span class="feature-icon">📋</span>
+                <h3>Proyecto DIF Municipal</h3>
+                <p class="small-title">Recuperación, Integración y Oportunidades</p>
+                <p>Desarrollado durante 4 meses con estudiantes de programación para apoyar a personas en rehabilitación, recuperación personal y reintegración...</p>
+            </section>
+
+            <section class="action-row">
+                <a class="primary" href="{{ url_for('interface_page', number=2) }}">Comenzar</a>
+                <a class="outline" href="{{ url_for('interface_page', number=3) }}">Saber Más</a>
+            </section>
+        </main>
+{% endblock %}

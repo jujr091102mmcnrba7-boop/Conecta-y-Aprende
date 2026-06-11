@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-shell">
+    <h2>Editar perfil</h2>
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    <form action="{{ url_for('profile_edit') }}" method="post" class="login-form">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" name="nombre" id="nombre" value="{{ user.nombre }}" required>
+
+        <label for="password">Contraseña nueva</label>
+        <input type="password" name="password" id="password" placeholder="Dejar vacío para conservar" />
+
+        <button type="submit" class="primary">Guardar cambios</button>
+    </form>
+</div>
+{% endblock %}
