@@ -17,13 +17,17 @@ db = client[app.config["MONGO_DB"]]
 
 ROLE_LABELS = {
     "admin": "Administrador",
+    "instructor": "Instructor",
     "docente": "Docente",
     "alumno": "Alumno",
     "recuperacion": "Persona en Recuperación"
 }
 
+INSTRUCTOR_EMAIL_SUFFIX = "@instructores.conecta"
+
 ROLE_PAGES = {
     "admin": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "instructor": [1, 2, 3, 4, 5, 6, 7, 9],
     "docente": [1, 2, 3, 4, 5, 6, 7, 9],
     "alumno": [1, 2, 3, 4, 5, 6, 7, 9],
     "recuperacion": [1, 2, 3, 4, 5, 6, 7, 9]
@@ -67,7 +71,8 @@ PAGE_SUMMARIES = {
 
 ROLE_HOME_MESSAGE = {
     "admin": "Accede al panel de administración, revisa usuarios y configura el proyecto desde tu espacio.",
-    "docente": "Encuentra tus recursos de formación, actividades docentes y el control de tus grupos.",
+    "instructor": "Encuentra tus recursos de formación, talleres y el control de tus grupos de aprendizaje.",
+    "docente": "Encuentra tus recursos de apoyo y el seguimiento de tus grupos.",
     "alumno": "Descubre los módulos recomendados, tus actividades y tu progreso personal.",
     "recuperacion": "Visualiza tu plan de recuperación, actividades y apoyo personalizado para avanzar.",
 }
@@ -81,6 +86,14 @@ ROLE_ACTIONS = {
         {"label": "Transferencias", "endpoint": "admin_cash_transfers"},
         {"label": "Préstamos", "endpoint": "admin_loans"},
         {"label": "Historial", "endpoint": "admin_action_history"},
+    ],
+    "instructor": [
+        {"label": "Mi Perfil", "endpoint": "profile"},
+        {"label": "Panel Instructor", "endpoint": "instructor_dashboard"},
+        {"label": "Mis Estudiantes", "endpoint": "instructor_students"},
+        {"label": "Talleres", "endpoint": "instructor_workshops"},
+        {"label": "Recursos", "endpoint": "instructor_resources"},
+        {"label": "Evidencias", "endpoint": "instructor_evidences"},
     ],
     "docente": [
         {"label": "Mi Perfil", "endpoint": "profile"},
@@ -304,7 +317,8 @@ PAGE_INFO = {
 
 ROLE_PAGE_NOTES = {
     "admin": "Como administrador, ves el control completo de usuarios, actividades y reportes.",
-    "docente": "Como docente, enfócate en el diseño de actividades y el seguimiento de tus grupos.",
+    "instructor": "Como instructor, enfócate en diseñar talleres, compartir recursos y monitorear el aprendizaje de los estudiantes.",
+    "docente": "Como docente, enfócate en el apoyo pedagógico y la gestión de contenidos básicos.",
     "alumno": "Como alumno, revisa tu avance y accede a las oportunidades que te ayuden a crecer.",
     "recuperacion": "Como participante en recuperación, usa este espacio para encontrar apoyo y cursos adaptados.",
 }
@@ -351,7 +365,13 @@ def init_db():
     db.system_settings.create_index("key", unique=True)
     db.posts.create_index("id", unique=True)
     db.posts.create_index([("fecha", -1)])
+    db.instructor_workshops.create_index([("instructor_id", 1), ("date", 1)])
+    db.instructor_resources.create_index([("instructor_id", 1), ("created_at", -1)])
     ensure_default_admin()
+    ensure_default_instructors()
+    ensure_default_demo_users()
+    ensure_default_demo_activity_data()
+    assign_instructors_to_existing_users()
 
 
 def ensure_default_admin():
@@ -365,8 +385,782 @@ def ensure_default_admin():
                 "role": "admin",
                 "active": True,
                 "created_at": datetime.utcnow(),
+                "profile_image": None,
             }
         )
+
+
+def ensure_default_instructors():
+    instructors = [
+        {
+            "nombre": "Laura Silva",
+            "email": "laura.silva@instructores.conecta",
+            "password": "Instructor2026!",
+        },
+        {
+            "nombre": "Ricardo Méndez",
+            "email": "ricardo.mendez@instructores.conecta",
+            "password": "Instructor2026!",
+        },
+        {
+            "nombre": "Mariana Torres",
+            "email": "mariana.torres@instructores.conecta",
+            "password": "Instructor2026!",
+        },
+        {
+            "nombre": "Felipe Gómez",
+            "email": "felipe.gomez@instructores.conecta",
+            "password": "Instructor2026!",
+        },
+        {
+            "nombre": "Ana Cruz",
+            "email": "ana.cruz@instructores.conecta",
+            "password": "Instructor2026!",
+        },
+    ]
+    for instructor in instructors:
+        if not db.users.find_one({"email": instructor["email"]}):
+            db.users.insert_one(
+                {
+                    "id": get_next_sequence("users"),
+                    "nombre": instructor["nombre"],
+                    "email": instructor["email"],
+                    "password": generate_password_hash(instructor["password"]),
+                    "role": "instructor",
+                    "active": True,
+                    "created_at": datetime.utcnow(),
+                    "profile_image": None,
+                    "area": "Formación e implementación",
+                }
+            )
+
+
+def ensure_default_demo_users():
+    demo_users = [
+        {
+            "nombre": "María Fernández",
+            "email": "maria.fernandez@docentes.conecta",
+            "password": "Docente2026!",
+            "role": "docente",
+            "area": "Pedagogía y enseñanza",
+            "instructor_email": "laura.silva@instructores.conecta",
+            "active": True,
+        },
+        {
+            "nombre": "Carlos Rojas",
+            "email": "carlos.rojas@docentes.conecta",
+            "password": "Docente2026!",
+            "role": "docente",
+            "area": "Pedagogía y enseñanza",
+            "instructor_email": "ricardo.mendez@instructores.conecta",
+            "active": True,
+        },
+        {
+            "nombre": "Ana López",
+            "email": "ana.lopez@alumnos.conecta",
+            "password": "Alumno2026!",
+            "role": "alumno",
+            "area": "Oficios y formación",
+            "instructor_email": "mariana.torres@instructores.conecta",
+            "active": True,
+        },
+        {
+            "nombre": "Jorge Castillo",
+            "email": "jorge.castillo@alumnos.conecta",
+            "password": "Alumno2026!",
+            "role": "alumno",
+            "area": "Oficios y formación",
+            "instructor_email": "felipe.gomez@instructores.conecta",
+            "active": True,
+        },
+        {
+            "nombre": "Mónica Pérez",
+            "email": "monica.perez@recuperacion.conecta",
+            "password": "Recupera2026!",
+            "role": "recuperacion",
+            "area": "Reintegración social",
+            "instructor_email": "ana.cruz@instructores.conecta",
+            "active": True,
+        },
+        {
+            "nombre": "Luis Torres",
+            "email": "luis.torres@recuperacion.conecta",
+            "password": "Recupera2026!",
+            "role": "recuperacion",
+            "area": "Reintegración social",
+            "instructor_email": "laura.silva@instructores.conecta",
+            "active": False,
+        },
+        {
+            "nombre": "Gabriela Díaz",
+            "email": "gabriela.diaz@docentes.conecta",
+            "password": "DocenteSeguro123!",
+            "role": "docente",
+            "area": "Pedagogía y enseñanza",
+            "instructor_email": "ricardo.mendez@instructores.conecta",
+            "active": True,
+        },
+        {
+            "nombre": "Sofía Morales",
+            "email": "sofia.morales@alumnos.conecta",
+            "password": "AlumnoSeguro123!",
+            "role": "alumno",
+            "area": "Oficios y formación",
+            "instructor_email": "mariana.torres@instructores.conecta",
+            "active": True,
+        },
+        {
+            "nombre": "Pablo Gómez",
+            "email": "pablo.gomez@recuperacion.conecta",
+            "password": "Recupera2026!",
+            "role": "recuperacion",
+            "area": "Reintegración social",
+            "instructor_email": "ana.cruz@instructores.conecta",
+            "active": True,
+        },
+        {
+            "nombre": "Laura Mendoza",
+            "email": "laura.mendoza@alumnos.conecta",
+            "password": "AlumnoSeguro123!",
+            "role": "alumno",
+            "area": "Oficios y formación",
+            "instructor_email": "felipe.gomez@instructores.conecta",
+            "active": True,
+        },
+    ]
+
+    for user in demo_users:
+        if db.users.find_one({"email": user["email"]}):
+            continue
+
+        instructor_id = None
+        if user.get("instructor_email"):
+            instructor = db.users.find_one({"email": user["instructor_email"], "role": "instructor"})
+            if instructor:
+                instructor_id = instructor["id"]
+
+        db.users.insert_one(
+            {
+                "id": get_next_sequence("users"),
+                "nombre": user["nombre"],
+                "email": user["email"],
+                "password": generate_password_hash(user["password"]),
+                "role": user["role"],
+                "active": user["active"],
+                "created_at": datetime.utcnow(),
+                "profile_image": None,
+                "area": user["area"],
+                "instructor_id": None if user["role"] == "instructor" else instructor_id,
+            }
+        )
+
+
+def ensure_default_demo_activity_data():
+    demo_workshops = [
+        {
+            "title": "Taller de sensibilización digital",
+            "date": "2026-07-02",
+            "modality": "Presencial",
+            "group": "Grupo A",
+            "description": "Sesión práctica para desarrollar herramientas digitales básicas.",
+            "instructor_email": "laura.silva@instructores.conecta",
+        },
+        {
+            "title": "Entrenamiento en redes comunitarias",
+            "date": "2026-07-04",
+            "modality": "Mixto",
+            "group": "Grupo B",
+            "description": "Capacitación sobre instalación y mantenimiento de redes.",
+            "instructor_email": "ricardo.mendez@instructores.conecta",
+        },
+        {
+            "title": "Proyecto de emprendimiento social",
+            "date": "2026-07-08",
+            "modality": "En línea",
+            "group": "Grupo C",
+            "description": "Planificación de una idea de negocio de impacto comunitario.",
+            "instructor_email": "mariana.torres@instructores.conecta",
+        },
+        {
+            "title": "Sesión práctica de oficios",
+            "date": "2026-07-10",
+            "modality": "Presencial",
+            "group": "Grupo D",
+            "description": "Ejercicios prácticos en herrería y carpintería.",
+            "instructor_email": "felipe.gomez@instructores.conecta",
+        },
+        {
+            "title": "Taller de acompañamiento psicosocial",
+            "date": "2026-07-12",
+            "modality": "En línea",
+            "group": "Grupo E",
+            "description": "Trabajo en habilidades para la reintegración social.",
+            "instructor_email": "ana.cruz@instructores.conecta",
+        },
+    ]
+
+    for workshop in demo_workshops:
+        instructor = db.users.find_one({"email": workshop["instructor_email"], "role": "instructor"})
+        if not instructor:
+            continue
+        if not db.instructor_workshops.find_one({"instructor_id": instructor["id"], "title": workshop["title"]}):
+            db.instructor_workshops.insert_one(
+                {
+                    "id": get_next_sequence("instructor_workshops"),
+                    "instructor_id": instructor["id"],
+                    "title": workshop["title"],
+                    "date": workshop["date"],
+                    "modality": workshop["modality"],
+                    "group": workshop["group"],
+                    "description": workshop["description"],
+                    "created_at": datetime.utcnow(),
+                }
+            )
+
+    demo_resources = [
+        {
+            "title": "Guía para dinámicas en aula",
+            "type": "Guía",
+            "link": "https://example.com/guia-dinamicas",
+            "notes": "Material para trabajar con grupos mixtos y actividades participativas.",
+            "instructor_email": "laura.silva@instructores.conecta",
+        },
+        {
+            "title": "Checklist de seguimiento de participantes",
+            "type": "Plantilla",
+            "link": "https://example.com/checklist-seguimiento",
+            "notes": "Formato para monitorear avances y asistencia.",
+            "instructor_email": "ricardo.mendez@instructores.conecta",
+        },
+        {
+            "title": "Plantilla de proyecto social",
+            "type": "Plantilla",
+            "link": "https://example.com/proyecto-social",
+            "notes": "Guía para estructurar ideas de emprendimiento colectivo.",
+            "instructor_email": "mariana.torres@instructores.conecta",
+        },
+        {
+            "title": "Manual de herramientas de taller",
+            "type": "Manual",
+            "link": "https://example.com/manual-taller",
+            "notes": "Instrucciones de uso y seguridad para herramientas básicas.",
+            "instructor_email": "felipe.gomez@instructores.conecta",
+        },
+        {
+            "title": "Guía de acompañamiento psicosocial",
+            "type": "Guía",
+            "link": "https://example.com/acompanamiento",
+            "notes": "Recursos para trabajar confianza y apoyo emocional.",
+            "instructor_email": "ana.cruz@instructores.conecta",
+        },
+    ]
+
+    for resource in demo_resources:
+        instructor = db.users.find_one({"email": resource["instructor_email"], "role": "instructor"})
+        if not instructor:
+            continue
+        if not db.instructor_resources.find_one({"instructor_id": instructor["id"], "title": resource["title"]}):
+            db.instructor_resources.insert_one(
+                {
+                    "id": get_next_sequence("instructor_resources"),
+                    "instructor_id": instructor["id"],
+                    "title": resource["title"],
+                    "type": resource["type"],
+                    "link": resource["link"],
+                    "notes": resource["notes"],
+                    "created_at": datetime.utcnow(),
+                }
+            )
+
+    demo_requests = [
+        {
+            "user_email": "monica.perez@recuperacion.conecta",
+            "actividad": "Diseño Gráfico",
+            "descripcion": "Necesito desarrollar material visual para el taller comunitario.",
+            "disponibilidad": "Lunes y Miércoles por la mañana",
+            "adicional": "Tengo experiencia básica en pintura.",
+            "estado": "aceptado",
+            "admin_instructions": "Sigue la guía enviada por correo.",
+            "program_notes": "Focalizar en comunicación visual.",
+            "meeting_info": "Sesión virtual el 5 de julio a las 10:00.",
+            "start_date": "2026-07-05",
+            "weekly_plan": "Desarrollar logos y piezas de difusión.",
+        },
+        {
+            "user_email": "luis.torres@recuperacion.conecta",
+            "actividad": "Reparación de Herrería",
+            "descripcion": "Busco aprender soldadura básica y reparación metálica.",
+            "disponibilidad": "Martes y Jueves por la tarde",
+            "adicional": "Puedo participar de forma presencial.",
+            "estado": "aceptado",
+            "admin_instructions": "Trae guantes y protección facial.",
+            "program_notes": "Enfocar en prácticas seguras.",
+            "meeting_info": "Encuentro en taller el 6 de julio a las 14:00.",
+            "start_date": "2026-07-06",
+            "weekly_plan": "Introducción a equipos y herramientas.",
+        },
+    ]
+
+    request_map = {}
+    for request in demo_requests:
+        user = db.users.find_one({"email": request["user_email"], "role": "recuperacion"})
+        if not user:
+            continue
+        existing = db.activity_requests.find_one({"user_id": user["id"], "actividad": request["actividad"]})
+        if existing:
+            request_map[user["email"]] = existing["id"]
+            continue
+        request_id = get_next_sequence("activity_requests")
+        db.activity_requests.insert_one(
+            {
+                "id": request_id,
+                "user_id": user["id"],
+                "nombre": user["nombre"],
+                "email": user["email"],
+                "rol": user["role"],
+                "actividad": request["actividad"],
+                "descripcion": request["descripcion"],
+                "disponibilidad": request["disponibilidad"],
+                "adicional": request["adicional"],
+                "estado": request["estado"],
+                "admin_instructions": request["admin_instructions"],
+                "program_notes": request["program_notes"],
+                "meeting_info": request["meeting_info"],
+                "start_date": request["start_date"],
+                "weekly_plan": request["weekly_plan"],
+                "penalty_dates": [],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+            }
+        )
+        request_map[user["email"]] = request_id
+
+    demo_evidences = [
+        {
+            "user_email": "monica.perez@recuperacion.conecta",
+            "actividad": "Diseño Gráfico",
+            "evidencia": "Revisión de bocetos de cartel y línea gráfica inicial.",
+            "fecha": "2026-07-07",
+        },
+        {
+            "user_email": "monica.perez@recuperacion.conecta",
+            "actividad": "Diseño Gráfico",
+            "evidencia": "Presenté dos propuestas de diseño y retroalimentación.",
+            "fecha": "2026-07-14",
+        },
+        {
+            "user_email": "luis.torres@recuperacion.conecta",
+            "actividad": "Reparación de Herrería",
+            "evidencia": "Realicé corte de piezas y ensamble inicial de estructura.",
+            "fecha": "2026-07-08",
+        },
+        {
+            "user_email": "luis.torres@recuperacion.conecta",
+            "actividad": "Reparación de Herrería",
+            "evidencia": "Registré el uso de soldadura con seguridad y limpieza de área.",
+            "fecha": "2026-07-15",
+        },
+    ]
+
+    for evidence in demo_evidences:
+        user = db.users.find_one({"email": evidence["user_email"], "role": "recuperacion"})
+        if not user:
+            continue
+        request_id = request_map.get(user["email"])
+        if not request_id:
+            request_doc = db.activity_requests.find_one({"user_id": user["id"], "actividad": evidence["actividad"]})
+            if request_doc:
+                request_id = request_doc["id"]
+        if not request_id:
+            continue
+        if db.activity_evidences.find_one({"user_id": user["id"], "request_id": request_id, "evidencia": evidence["evidencia"]}):
+            continue
+        db.activity_evidences.insert_one(
+            {
+                "id": get_next_sequence("activity_evidences"),
+                "user_id": user["id"],
+                "request_id": request_id,
+                "evidencia": evidence["evidencia"],
+                "image_filename": None,
+                "fecha": evidence["fecha"],
+                "created_at": datetime.utcnow(),
+            }
+        )
+
+    demo_cash_transactions = [
+        {
+            "user_email": "ana.lopez@alumnos.conecta",
+            "tipo": "deposito",
+            "cantidad": 120.0,
+            "estado": "pendiente",
+            "referencia": "DEP-00124",
+            "comentario": "Solicito depósito para materiales.",
+            "actividad": "Taller de sensibilización digital",
+        },
+        {
+            "user_email": "jorge.castillo@alumnos.conecta",
+            "tipo": "retiro",
+            "cantidad": 80.0,
+            "estado": "completado",
+            "referencia": "RET-00456",
+            "comentario": "Necesito retirar fondos para transporte.",
+            "actividad": "Sesión práctica de oficios",
+        },
+        {
+            "user_email": "monica.perez@recuperacion.conecta",
+            "tipo": "deposito",
+            "cantidad": 150.0,
+            "estado": "rechazado",
+            "referencia": "DEP-00912",
+            "comentario": "Solicitud de pago de actividad de diseño gráfico.",
+            "actividad": "Diseño Gráfico",
+        },
+        {
+            "user_email": "pablo.gomez@recuperacion.conecta",
+            "tipo": "deposito",
+            "cantidad": 100.0,
+            "estado": "pendiente",
+            "referencia": "DEP-01133",
+            "comentario": "Solicitud de depósito para taller de herrería.",
+            "actividad": "Reparación de Herrería",
+        },
+    ]
+
+    for tx in demo_cash_transactions:
+        user = db.users.find_one({"email": tx["user_email"]})
+        if not user:
+            continue
+        if db.cash_transactions.find_one({"user_id": user["id"], "referencia": tx["referencia"]}):
+            continue
+        db.cash_transactions.insert_one(
+            {
+                "id": get_next_sequence("cash_transactions"),
+                "user_id": user["id"],
+                "tipo": tx["tipo"],
+                "cantidad": tx["cantidad"],
+                "estado": tx["estado"],
+                "referencia": tx["referencia"],
+                "comentario": tx["comentario"],
+                "actividad": tx["actividad"],
+                "ticket_number": None,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+            }
+        )
+
+    demo_loans = [
+        {
+            "user_email": "sofia.morales@alumnos.conecta",
+            "cantidad": 200.0,
+            "interes": 3.5,
+            "plazo_meses": 6,
+            "estado": "pendiente",
+            "referencia": "LN-2026-001",
+            "comentario": "Préstamo para comprar insumos de costura.",
+        },
+        {
+            "user_email": "laura.mendoza@alumnos.conecta",
+            "cantidad": 180.0,
+            "interes": 4.0,
+            "plazo_meses": 5,
+            "estado": "aprobado",
+            "referencia": "LN-2026-002",
+            "comentario": "Necesito apoyo para herramientas de carpintería.",
+        },
+        {
+            "user_email": "luis.torres@recuperacion.conecta",
+            "cantidad": 250.0,
+            "interes": 5.0,
+            "plazo_meses": 8,
+            "estado": "rechazado",
+            "referencia": "LN-2026-003",
+            "comentario": "Solicitud de préstamo para transporte laboral.",
+        },
+    ]
+
+    for loan in demo_loans:
+        user = db.users.find_one({"email": loan["user_email"]})
+        if not user:
+            continue
+        if db.loans.find_one({"user_id": user["id"], "referencia": loan["referencia"]}):
+            continue
+        db.loans.insert_one(
+            {
+                "id": get_next_sequence("loans"),
+                "user_id": user["id"],
+                "cantidad": loan["cantidad"],
+                "interes": loan["interes"],
+                "plazo_meses": loan["plazo_meses"],
+                "estado": loan["estado"],
+                "referencia": loan["referencia"],
+                "comentario": loan["comentario"],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+            }
+        )
+
+    demo_certificates = [
+        {
+            "user_email": "monica.perez@recuperacion.conecta",
+            "actividad": "Diseño Gráfico",
+            "titulo": "Certificado por Diseño Gráfico",
+            "estado": "pendiente",
+            "admin_comments": "Revisión pendiente del área de capacitación.",
+            "progress": 100,
+        },
+        {
+            "user_email": "luis.torres@recuperacion.conecta",
+            "actividad": "Reparación de Herrería",
+            "titulo": "Certificado por Reparación de Herrería",
+            "estado": "pendiente",
+            "admin_comments": "A la espera de aprobación final.",
+            "progress": 100,
+        },
+    ]
+
+    for cert in demo_certificates:
+        user = db.users.find_one({"email": cert["user_email"]})
+        if not user:
+            continue
+        request_doc = db.activity_requests.find_one({"user_id": user["id"], "actividad": cert["actividad"]})
+        if not request_doc:
+            continue
+        if db.certificates.find_one({"user_id": user["id"], "request_id": request_doc["id"], "titulo": cert["titulo"]}):
+            continue
+        db.certificates.insert_one(
+            {
+                "id": get_next_sequence("certificates"),
+                "user_id": user["id"],
+                "request_id": request_doc["id"],
+                "titulo": cert["titulo"],
+                "estado": cert["estado"],
+                "admin_comments": cert["admin_comments"],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+                "awarded_at": None,
+                "progress": cert["progress"],
+            }
+        )
+
+    demo_contact_messages = [
+        {
+            "user_email": "ana.lopez@alumnos.conecta",
+            "subject": "Consulta sobre inscripción",
+            "message": "Quisiera saber en qué horario será la siguiente sesión de oficios.",
+            "status": "nuevo",
+        },
+        {
+            "user_email": "maria.fernandez@docentes.conecta",
+            "subject": "Solicitud de apoyo metodológico",
+            "message": "Necesito recomendaciones para la planificación del taller de pedagogía.",
+            "status": "nuevo",
+        },
+        {
+            "user_email": "pablo.gomez@recuperacion.conecta",
+            "subject": "Problema con acceso a la plataforma",
+            "message": "No puedo ver el contenido de mi actividad desde el perfil.",
+            "status": "respondido",
+            "admin_response": "Estamos revisando el acceso y te avisaremos en breve.",
+        },
+    ]
+
+    for msg in demo_contact_messages:
+        user = db.users.find_one({"email": msg["user_email"]})
+        email = msg["user_email"]
+        user_id = user["id"] if user else None
+        if db.contact_messages.find_one({"email": email, "subject": msg["subject"], "status": msg["status"]}):
+            continue
+        insert_doc = {
+            "user_id": user_id,
+            "name": user["nombre"] if user else email,
+            "email": email,
+            "subject": msg["subject"],
+            "message": msg["message"],
+            "status": msg["status"],
+            "created_at": datetime.utcnow(),
+        }
+        if msg.get("admin_response"):
+            insert_doc["admin_response"] = msg["admin_response"]
+            insert_doc["responded_at"] = datetime.utcnow()
+        db.contact_messages.insert_one(insert_doc)
+
+    demo_notifications = [
+        {
+            "user_email": "monica.perez@recuperacion.conecta",
+            "titulo": "Actualización de transferencia",
+            "mensaje": "Tu solicitud de pago fue recibida y está en revisión.",
+        },
+        {
+            "user_email": "luis.torres@recuperacion.conecta",
+            "titulo": "Evaluación de certificado",
+            "mensaje": "Tu certificado se encuentra pendiente de aprobación administrativa.",
+        },
+        {
+            "user_email": "sofia.morales@alumnos.conecta",
+            "titulo": "Recordatorio de préstamo",
+            "mensaje": "Revisa los detalles de tu solicitud de préstamo en el panel.",
+        },
+    ]
+
+    for note in demo_notifications:
+        user = db.users.find_one({"email": note["user_email"]})
+        if not user:
+            continue
+        if db.notifications.find_one({"user_id": user["id"], "titulo": note["titulo"], "mensaje": note["mensaje"]}):
+            continue
+        db.notifications.insert_one(
+            {
+                "id": get_next_sequence("notifications"),
+                "user_id": user["id"],
+                "titulo": note["titulo"],
+                "mensaje": note["mensaje"],
+                "leido": False,
+                "created_at": datetime.utcnow(),
+            }
+        )
+
+
+def get_default_area_for_role(role):
+    return {
+        "docente": "Pedagogía y enseñanza",
+        "alumno": "Oficios y formación",
+        "recuperacion": "Reintegración social",
+        "instructor": "Formación e implementación",
+        "admin": "Administración",
+    }.get(role, "Apoyo general")
+
+
+def assign_instructors_to_existing_users():
+    instructors = list(db.users.find({"role": "instructor"}))
+    if not instructors:
+        return
+
+    instructor_load = {
+        inst["id"]: db.users.count_documents({"instructor_id": inst["id"]})
+        for inst in instructors
+    }
+    instructor_order = sorted(instructor_load.items(), key=lambda item: (item[1], item[0]))
+
+    for doc in db.users.find({"role": {"$nin": ["admin", "instructor"]}}):
+        update_fields = {}
+        if not doc.get("area"):
+            update_fields["area"] = get_default_area_for_role(doc.get("role"))
+        if doc.get("instructor_id") is None:
+            assigned_id = instructor_order[0][0]
+            update_fields["instructor_id"] = assigned_id
+            instructor_order[0] = (instructor_order[0][0], instructor_order[0][1] + 1)
+            instructor_order.sort(key=lambda item: (item[1], item[0]))
+        if update_fields:
+            db.users.update_one({"id": doc["id"]}, {"$set": update_fields})
+
+    for inst in instructors:
+        if not inst.get("area"):
+            db.users.update_one({"id": inst["id"]}, {"$set": {"area": "Formación e implementación"}})
+
+
+def assign_instructor_to_user(user_id, role):
+    instructor = db.users.find_one({"role": "instructor"}, sort=[("created_at", 1)])
+    if not instructor:
+        return
+    db.users.update_one(
+        {"id": user_id},
+        {
+            "$set": {
+                "area": get_default_area_for_role(role),
+                "instructor_id": instructor["id"],
+            }
+        },
+    )
+
+
+def get_instructor_list():
+    instructors = []
+    for doc in db.users.find({"role": "instructor"}).sort("nombre", 1):
+        instructors.append({"id": doc["id"], "nombre": doc["nombre"]})
+    return instructors
+
+
+def get_assigned_students(instructor_id):
+    students = []
+    for doc in db.users.find({"instructor_id": instructor_id, "role": {"$nin": ["admin", "instructor"]}}).sort("created_at", -1):
+        students.append(
+            {
+                "id": doc["id"],
+                "nombre": doc["nombre"],
+                "email": doc["email"],
+                "role": doc["role"],
+                "area": doc.get("area", "Sin área"),
+                "created_at": doc.get("created_at"),
+            }
+        )
+    return students
+
+
+def get_instructor_workshops(instructor_id):
+    workshops = []
+    for doc in db.instructor_workshops.find({"instructor_id": instructor_id}).sort("date", 1):
+        workshops.append(
+            {
+                "id": doc["id"],
+                "title": doc["title"],
+                "date": doc.get("date"),
+                "modality": doc.get("modality"),
+                "group": doc.get("group"),
+                "description": doc.get("description"),
+                "created_at": doc.get("created_at"),
+            }
+        )
+    return workshops
+
+
+def get_instructor_resources(instructor_id):
+    resources = []
+    for doc in db.instructor_resources.find({"instructor_id": instructor_id}).sort("created_at", -1):
+        resources.append(
+            {
+                "id": doc["id"],
+                "title": doc["title"],
+                "type": doc.get("type", "Recurso"),
+                "link": doc.get("link"),
+                "notes": doc.get("notes"),
+                "created_at": doc.get("created_at"),
+            }
+        )
+    return resources
+
+
+def get_assigned_evidences(instructor_id):
+    students = list(db.users.find({"instructor_id": instructor_id}, {"id": 1}))
+    student_ids = [doc["id"] for doc in students]
+    if not student_ids:
+        return []
+
+    requests = {doc["id"]: doc for doc in db.activity_requests.find({"user_id": {"$in": student_ids}})}
+    evidences = []
+    for doc in db.activity_evidences.find({"user_id": {"$in": student_ids}}).sort("created_at", -1):
+        request_doc = requests.get(doc["request_id"])
+        user_doc = db.users.find_one({"id": doc["user_id"]})
+        evidences.append(
+            {
+                "id": doc["id"],
+                "student_name": user_doc["nombre"] if user_doc else "Desconocido",
+                "student_email": user_doc["email"] if user_doc else "-",
+                "activity": request_doc["actividad"] if request_doc else "Actividad desconocida",
+                "evidence": doc.get("evidencia", "Sin texto"),
+                "image_filename": doc.get("image_filename"),
+                "fecha": doc.get("fecha"),
+                "created_at": doc.get("created_at"),
+            }
+        )
+    return evidences
+
+
+def get_instructor_areas(instructor_id):
+    areas = set()
+    for doc in db.users.find({"instructor_id": instructor_id}):
+        if doc.get("area"):
+            areas.add(doc["area"])
+    return sorted(areas)
 
 
 def create_user_notification(user_id, titulo, mensaje):
@@ -404,6 +1198,11 @@ def inject_unread_notifications():
         return {}
     count = db.notifications.count_documents({"user_id": user_id, "leido": False})
     return {"unread_notifications": count}
+
+
+@app.context_processor
+def inject_current_user():
+    return {"user": get_current_user()}
 
 
 def get_user_activity_request(user_id):
@@ -828,7 +1627,14 @@ def get_current_user():
         "role": doc["role"],
         "active": bool(doc.get("active", False)),
         "created_at": doc.get("created_at"),
+        "profile_image": doc.get("profile_image"),
+        "area": doc.get("area"),
+        "instructor_id": doc.get("instructor_id"),
     }
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in app.config["ALLOWED_EXTENSIONS"]
 
 
 def require_login():
@@ -964,20 +1770,27 @@ def register():
         if not nombre or not email or not password or role not in ROLE_LABELS:
             return render_template("register.html", error="Completa todos los campos correctamente.")
 
+        if role == "instructor":
+            return render_template("register.html", error="El registro público no permite crear cuentas de instructor.")
+
         if db.users.find_one({"email": email}):
             return render_template("register.html", error="Ya existe un usuario con ese correo.")
 
+        user_id = get_next_sequence("users")
         db.users.insert_one(
             {
-                "id": get_next_sequence("users"),
+                "id": user_id,
                 "nombre": nombre,
                 "email": email,
                 "password": generate_password_hash(password),
                 "role": role,
                 "active": False,
                 "created_at": datetime.utcnow(),
+                "profile_image": None,
+                "area": get_default_area_for_role(role),
             }
         )
+        assign_instructor_to_user(user_id, role)
 
         return render_template(
             "simple.html",
@@ -1015,6 +1828,7 @@ def profile_edit():
     if request.method == "POST":
         nombre = request.form.get("nombre", "").strip()
         password = request.form.get("password", "")
+        profile_image = request.files.get("profile_image")
 
         if not nombre:
             return render_template("profile_edit.html", user=user, error="El nombre no puede estar vacío.")
@@ -1022,6 +1836,15 @@ def profile_edit():
         update_fields = {"nombre": nombre}
         if password:
             update_fields["password"] = generate_password_hash(password)
+
+        if profile_image and profile_image.filename:
+            if not allowed_file(profile_image.filename):
+                return render_template("profile_edit.html", user=user, error="Formato de imagen no permitido. Usa png, jpg o gif.")
+            filename = secure_filename(profile_image.filename)
+            stored_filename = f"profile_{user['id']}_{int(datetime.utcnow().timestamp())}_{filename}"
+            profile_image.save(os.path.join(app.config["UPLOAD_FOLDER"], stored_filename))
+            update_fields["profile_image"] = stored_filename
+
         db.users.update_one({"id": user["id"]}, {"$set": update_fields})
         return redirect(url_for("profile"))
 
@@ -1038,6 +1861,11 @@ def admin_users():
     if user["role"] != "admin":
         abort(403)
 
+    instructor_lookup = {
+        inst["id"]: inst["nombre"]
+        for inst in db.users.find({"role": "instructor"})
+    }
+
     users = []
     for doc in db.users.find().sort("created_at", -1):
         users.append(
@@ -1048,10 +1876,261 @@ def admin_users():
                 doc["role"],
                 bool(doc.get("active", False)),
                 doc.get("created_at"),
+                doc.get("area", ""),
+                instructor_lookup.get(doc.get("instructor_id"), "-") if doc.get("instructor_id") else "-",
             )
         )
 
     return render_template("admin_users.html", users=users)
+
+
+@app.route("/instructor/panel")
+def instructor_dashboard():
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "instructor":
+        abort(403)
+
+    students_count = db.users.count_documents({"role": {"$in": ["alumno", "docente", "recuperacion"]}})
+    accepted_requests = db.activity_requests.count_documents({"estado": "aceptado"})
+    evidence_count = db.activity_evidences.count_documents({})
+
+    upcoming_workshops = [
+        {
+            "title": "Taller de comunicación efectiva",
+            "date": "Martes 2 Jul",
+            "group": "Grupo A",
+            "status": "Planeado",
+        },
+        {
+            "title": "Proyecto de emprendimiento social",
+            "date": "Jueves 4 Jul",
+            "group": "Grupo B",
+            "status": "En curso",
+        },
+        {
+            "title": "Sesión práctica de oficios",
+            "date": "Lunes 8 Jul",
+            "group": "Grupo C",
+            "status": "Confirmado",
+        },
+    ]
+
+    strategy_tools = [
+        {
+            "title": "Crear taller nuevo",
+            "description": "Define objetivos, recursos y lista de actividades para cada sesión.",
+            "endpoint": "actividades_disponibles",
+        },
+        {
+            "title": "Monitorear evidencias",
+            "description": "Revisa el progreso de los estudiantes y registra avances semanales.",
+            "endpoint": "user_activity_dashboard",
+        },
+        {
+            "title": "Compartir recursos",
+            "description": "Organiza materiales, guías y videos para apoyar tus clases.",
+            "endpoint": "profile",
+        },
+    ]
+
+    assigned_students = get_assigned_students(user["id"])
+    assigned_student_ids = [student["id"] for student in assigned_students]
+    accepted_requests = db.activity_requests.count_documents({"user_id": {"$in": assigned_student_ids}, "estado": "aceptado"}) if assigned_student_ids else 0
+    evidence_count = db.activity_evidences.count_documents({"user_id": {"$in": assigned_student_ids}}) if assigned_student_ids else 0
+    workshop_count = db.instructor_workshops.count_documents({"instructor_id": user["id"]})
+    resource_count = db.instructor_resources.count_documents({"instructor_id": user["id"]})
+    assigned_areas = get_instructor_areas(user["id"])
+
+    upcoming_workshops = get_instructor_workshops(user["id"])
+    strategy_tools = [
+        {
+            "title": "Ver estudiantes asignados",
+            "description": "Consulta los usuarios bajo tu tutoría y sus áreas de trabajo.",
+            "endpoint": "instructor_students",
+        },
+        {
+            "title": "Administrar talleres",
+            "description": "Crea y organiza sesiones de formación para tus grupos.",
+            "endpoint": "instructor_workshops",
+        },
+        {
+            "title": "Compartir recursos",
+            "description": "Suma guías, plantillas y enlaces para apoyar el aprendizaje.",
+            "endpoint": "instructor_resources",
+        },
+    ]
+
+    return render_template(
+        "instructor_dashboard.html",
+        user=user,
+        students_count=len(assigned_students),
+        accepted_requests=accepted_requests,
+        evidence_count=evidence_count,
+        workshop_count=workshop_count,
+        resource_count=resource_count,
+        assigned_areas=assigned_areas,
+        upcoming_workshops=upcoming_workshops,
+        strategy_tools=strategy_tools,
+    )
+
+
+@app.route("/instructor/students")
+def instructor_students():
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "instructor":
+        abort(403)
+
+    students = get_assigned_students(user["id"])
+    return render_template("instructor_students.html", user=user, students=students)
+
+
+@app.route("/instructor/workshops")
+def instructor_workshops():
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "instructor":
+        abort(403)
+
+    workshops = get_instructor_workshops(user["id"])
+    return render_template("instructor_workshops.html", user=user, workshops=workshops)
+
+
+@app.route("/instructor/workshops/create", methods=["GET", "POST"])
+def instructor_workshop_create():
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "instructor":
+        abort(403)
+
+    error = None
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        date_value = request.form.get("date", "").strip()
+        modality = request.form.get("modality", "").strip()
+        group = request.form.get("group", "").strip()
+        description = request.form.get("description", "").strip()
+
+        if not title or not date_value or not modality or not group:
+            error = "Completa todos los campos obligatorios para crear el taller."
+        else:
+            db.instructor_workshops.insert_one(
+                {
+                    "id": get_next_sequence("instructor_workshops"),
+                    "instructor_id": user["id"],
+                    "title": title,
+                    "date": date_value,
+                    "modality": modality,
+                    "group": group,
+                    "description": description,
+                    "created_at": datetime.utcnow(),
+                }
+            )
+            return redirect(url_for("instructor_workshops"))
+
+    return render_template("instructor_workshop_form.html", user=user, error=error)
+
+
+@app.route("/instructor/resources")
+def instructor_resources():
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "instructor":
+        abort(403)
+
+    resources = get_instructor_resources(user["id"])
+    return render_template("instructor_resources.html", user=user, resources=resources)
+
+
+@app.route("/instructor/resources/create", methods=["GET", "POST"])
+def instructor_resource_create():
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "instructor":
+        abort(403)
+
+    error = None
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        resource_type = request.form.get("type", "").strip()
+        link = request.form.get("link", "").strip()
+        notes = request.form.get("notes", "").strip()
+
+        if not title or not resource_type:
+            error = "Completa el título y el tipo de recurso."
+        else:
+            db.instructor_resources.insert_one(
+                {
+                    "id": get_next_sequence("instructor_resources"),
+                    "instructor_id": user["id"],
+                    "title": title,
+                    "type": resource_type,
+                    "link": link,
+                    "notes": notes,
+                    "created_at": datetime.utcnow(),
+                }
+            )
+            return redirect(url_for("instructor_resources"))
+
+    return render_template("instructor_resource_form.html", user=user, error=error)
+
+
+@app.route("/instructor/evidencias")
+def instructor_evidences():
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "instructor":
+        abort(403)
+
+    evidences = get_assigned_evidences(user["id"])
+    return render_template("instructor_evidences.html", user=user, evidences=evidences)
+
+
+@app.route("/admin/assign_instructors")
+def admin_assign_instructors():
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "admin":
+        abort(403)
+
+    assign_instructors_to_existing_users()
+    return render_template(
+        "simple.html",
+        title="Asignaciones actualizadas",
+        subtitle="Usuarios y áreas enlazados a instructores correctamente.",
+        lines=[
+            "Se asignaron instructores a los usuarios existentes.",
+            "También se actualizó el campo de área para cada usuario.",
+        ],
+        actions=[
+            {"label": "Volver al panel admin", "endpoint": "admin_users"},
+        ],
+    )
 
 
 @app.route("/admin/contact_messages")
@@ -1162,33 +2241,56 @@ def admin_user_create():
     if user["role"] != "admin":
         abort(403)
 
+    instructors = get_instructor_list()
+
     if request.method == "POST":
         nombre = request.form.get("nombre", "").strip()
         email = request.form.get("email", "").strip().lower()
         role = request.form.get("role")
         password = request.form.get("password", "")
         active = bool(request.form.get("active"))
+        area = request.form.get("area", "").strip()
+        instructor_id = request.form.get("instructor_id")
 
         if not nombre or not email or not password or role not in ROLE_LABELS:
-            return render_template("user_form.html", user=None, error="Completa todos los campos.", roles=ROLE_LABELS)
+            return render_template("user_form.html", user=None, error="Completa todos los campos.", roles=ROLE_LABELS, instructors=instructors)
+
+        if role == "instructor" and not email.endswith(INSTRUCTOR_EMAIL_SUFFIX):
+            return render_template("user_form.html", user=None, error=f"Los instructores deben usar un correo que termine en {INSTRUCTOR_EMAIL_SUFFIX}.", roles=ROLE_LABELS, instructors=instructors)
 
         if db.users.find_one({"email": email}):
-            return render_template("user_form.html", user=None, error="Ya existe un usuario con ese correo.", roles=ROLE_LABELS)
+            return render_template("user_form.html", user=None, error="Ya existe un usuario con ese correo.", roles=ROLE_LABELS, instructors=instructors)
 
+        instructor_id_value = None
+        if instructor_id and instructor_id.isdigit():
+            instructor_id_value = int(instructor_id)
+            if not db.users.find_one({"id": instructor_id_value, "role": "instructor"}):
+                instructor_id_value = None
+
+        if not area:
+            area = get_default_area_for_role(role)
+
+        user_id = get_next_sequence("users")
         db.users.insert_one(
             {
-                "id": get_next_sequence("users"),
+                "id": user_id,
                 "nombre": nombre,
                 "email": email,
                 "password": generate_password_hash(password),
                 "role": role,
                 "active": active,
                 "created_at": datetime.utcnow(),
+                "area": area,
+                "instructor_id": None if role == "instructor" else instructor_id_value,
             }
         )
+
+        if role != "instructor" and instructor_id_value is None:
+            assign_instructor_to_user(user_id, role)
+
         return redirect(url_for("admin_users"))
 
-    return render_template("user_form.html", user=None, roles=ROLE_LABELS)
+    return render_template("user_form.html", user=None, roles=ROLE_LABELS, instructors=instructors)
 
 
 @app.route("/admin/users/<int:user_id>/edit", methods=["GET", "POST"])
@@ -1211,6 +2313,8 @@ def admin_user_edit(user_id):
         "email": doc["email"],
         "role": doc["role"],
         "active": bool(doc.get("active", False)),
+        "area": doc.get("area", ""),
+        "instructor_id": doc.get("instructor_id"),
     }
 
     if request.method == "POST":
@@ -1218,18 +2322,36 @@ def admin_user_edit(user_id):
         role = request.form.get("role")
         active = bool(request.form.get("active"))
         password = request.form.get("password", "")
+        area = request.form.get("area", "").strip()
+        instructor_id = request.form.get("instructor_id")
 
         if not nombre or role not in ROLE_LABELS:
-            return render_template("user_form.html", user=target, error="Completa todos los campos.", roles=ROLE_LABELS)
+            return render_template("user_form.html", user=target, error="Completa todos los campos.", roles=ROLE_LABELS, instructors=get_instructor_list())
 
-        update_fields = {"nombre": nombre, "role": role, "active": active}
+        instructor_id_value = None
+        if instructor_id and instructor_id.isdigit():
+            instructor_id_value = int(instructor_id)
+            if not db.users.find_one({"id": instructor_id_value, "role": "instructor"}):
+                instructor_id_value = None
+
+        update_fields = {
+            "nombre": nombre,
+            "role": role,
+            "active": active,
+            "area": area or get_default_area_for_role(role),
+            "instructor_id": None if role == "instructor" else instructor_id_value,
+        }
         if password:
             update_fields["password"] = generate_password_hash(password)
 
         db.users.update_one({"id": user_id}, {"$set": update_fields})
+
+        if role != "instructor" and update_fields["instructor_id"] is None:
+            assign_instructor_to_user(user_id, role)
+
         return redirect(url_for("admin_users"))
 
-    return render_template("user_form.html", user=target, roles=ROLE_LABELS)
+    return render_template("user_form.html", user=target, roles=ROLE_LABELS, instructors=get_instructor_list())
 
 
 @app.route("/admin/users/<int:user_id>/delete", methods=["POST"])
@@ -1394,6 +2516,135 @@ def admin_process_request(request_id):
             flash("Solicitud rechazada correctamente.")
 
     return redirect(url_for("admin_activity_requests"))
+
+
+@app.route("/admin/actividades/solicitudes/<int:request_id>/editar", methods=["GET", "POST"])
+def admin_activity_request_edit(request_id):
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "admin":
+        abort(403)
+
+    doc = db.activity_requests.find_one({"id": request_id})
+    if not doc:
+        abort(404)
+
+    if request.method == "POST":
+        estado = request.form.get("estado", "pendiente")
+        descripcion = request.form.get("descripcion", "").strip()
+        disponibilidad = request.form.get("disponibilidad", "").strip()
+        adicional = request.form.get("adicional", "").strip()
+        admin_instructions = request.form.get("admin_instructions", "").strip()
+        program_notes = request.form.get("program_notes", "").strip()
+        meeting_info = request.form.get("meeting_info", "").strip()
+        start_date_value = request.form.get("start_date", "").strip()
+        weekly_plan = request.form.get("weekly_plan", "").strip()
+
+        update_fields = {
+            "estado": estado,
+            "descripcion": descripcion,
+            "disponibilidad": disponibilidad,
+            "adicional": adicional,
+            "admin_instructions": admin_instructions or None,
+            "program_notes": program_notes or None,
+            "meeting_info": meeting_info or None,
+            "weekly_plan": weekly_plan or None,
+            "updated_at": datetime.utcnow(),
+        }
+        if start_date_value:
+            update_fields["start_date"] = start_date_value
+
+        db.activity_requests.update_one({"id": request_id}, {"$set": update_fields})
+        flash("Solicitud actualizada correctamente.")
+        return redirect(url_for("admin_activity_requests"))
+
+    request_data = {
+        "id": doc["id"],
+        "user_id": doc.get("user_id"),
+        "nombre": doc.get("nombre", ""),
+        "email": doc.get("email", ""),
+        "rol": doc.get("rol", ""),
+        "actividad": doc.get("actividad", ""),
+        "descripcion": doc.get("descripcion", ""),
+        "disponibilidad": doc.get("disponibilidad", ""),
+        "adicional": doc.get("adicional", ""),
+        "estado": doc.get("estado", "pendiente"),
+        "admin_instructions": doc.get("admin_instructions", ""),
+        "program_notes": doc.get("program_notes", ""),
+        "meeting_info": doc.get("meeting_info", ""),
+        "start_date": doc.get("start_date", ""),
+        "weekly_plan": doc.get("weekly_plan", ""),
+    }
+    return render_template("admin_activity_request_edit.html", request_data=request_data)
+
+
+@app.route("/admin/actividades/solicitudes/<int:request_id>/eliminar", methods=["POST"])
+def admin_delete_activity_request(request_id):
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "admin":
+        abort(403)
+
+    doc = db.activity_requests.find_one({"id": request_id})
+    if doc:
+        db.activity_requests.delete_one({"id": request_id})
+        create_user_notification(
+            doc["user_id"],
+            "Solicitud de actividad eliminada",
+            "Tu solicitud de actividad ha sido eliminada por el administrador.",
+        )
+        flash("Solicitud eliminada correctamente.")
+    return redirect(url_for("admin_activity_requests"))
+
+
+@app.route("/admin/transferencias/<int:tx_id>/eliminar", methods=["POST"])
+def admin_delete_transfer(tx_id):
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "admin":
+        abort(403)
+
+    tx_doc = db.cash_transactions.find_one({"id": tx_id})
+    if tx_doc:
+        db.cash_transactions.delete_one({"id": tx_id})
+        create_user_notification(
+            tx_doc["user_id"],
+            "Transferencia eliminada",
+            "Tu solicitud de transferencia ha sido eliminada por el administrador.",
+        )
+        flash("Transferencia eliminada correctamente.")
+    return redirect(url_for("admin_cash_transfers"))
+
+
+@app.route("/admin/prestamos/<int:loan_id>/eliminar", methods=["POST"])
+def admin_delete_loan(loan_id):
+    redirect_to_login = require_login()
+    if redirect_to_login:
+        return redirect_to_login
+
+    user = get_current_user()
+    if user["role"] != "admin":
+        abort(403)
+
+    loan_doc = db.loans.find_one({"id": loan_id})
+    if loan_doc:
+        db.loans.delete_one({"id": loan_id})
+        create_user_notification(
+            loan_doc["user_id"],
+            "Solicitud de préstamo eliminada",
+            "Tu solicitud de préstamo ha sido eliminada por el administrador.",
+        )
+        flash("Préstamo eliminado correctamente.")
+    return redirect(url_for("admin_loans"))
 
 
 @app.route("/admin/certificados")
@@ -1604,17 +2855,35 @@ def request_loan():
         interes = request.form.get("interes", "0").strip()
         plazo = request.form.get("plazo", "0").strip()
         referencia = request.form.get("referencia", "").strip()
-        comentario = request.form.get("comentario", "").strip()
+        motivo = request.form.get("motivo", "").strip()
 
-        if not cantidad:
-            return render_template("loan_request.html", user=user, error="Ingresa la cantidad del préstamo.", cantidad=cantidad, interes=interes, plazo=plazo, referencia=referencia, comentario=comentario)
+        if not cantidad or not motivo:
+            return render_template(
+                "loan_request.html",
+                user=user,
+                error="Ingresa la cantidad del préstamo y el motivo contractual.",
+                cantidad=cantidad,
+                interes=interes,
+                plazo=plazo,
+                referencia=referencia,
+                motivo=motivo,
+            )
 
         try:
             cantidad_val = float(cantidad)
             interes_val = float(interes)
             plazo_val = int(plazo)
         except ValueError:
-            return render_template("loan_request.html", user=user, error="Cantidad, interés y plazo deben ser valores numéricos.", cantidad=cantidad, interes=interes, plazo=plazo, referencia=referencia, comentario=comentario)
+            return render_template(
+                "loan_request.html",
+                user=user,
+                error="Cantidad, interés y plazo deben ser valores numéricos.",
+                cantidad=cantidad,
+                interes=interes,
+                plazo=plazo,
+                referencia=referencia,
+                motivo=motivo,
+            )
 
         loan_id = get_next_sequence("loans")
         db.loans.insert_one(
@@ -1626,7 +2895,7 @@ def request_loan():
                 "plazo_meses": plazo_val,
                 "estado": "pendiente",
                 "referencia": referencia,
-                "comentario": comentario,
+                "comentario": motivo,
                 "created_at": datetime.utcnow(),
                 "updated_at": datetime.utcnow(),
             }
@@ -1641,7 +2910,7 @@ def request_loan():
             actions=[{"label": "Mi Actividad", "endpoint": "user_activity_dashboard"}, {"label": "Inicio", "endpoint": "home"}],
         )
 
-    return render_template("loan_request.html", user=user)
+    return render_template("loan_request.html", user=user, motivo='')
 
 
 @app.route("/blog")
@@ -2287,16 +3556,26 @@ def deposit_cash():
             actions=[{"label": "Mi Actividad", "endpoint": "user_activity_dashboard"}, {"label": "Inicio", "endpoint": "home"}],
         )
 
-    if request.method == "POST":
-        cantidad = request.form.get("cantidad", "").strip()
-        referencia = request.form.get("referencia", "").strip()
-        if not cantidad:
-            return render_template("cash_transaction_form.html", user=user, tipo="deposito", error="Ingresa una cantidad válida.")
+    activity = find_activity_option(request_data["actividad"]) or {"name": request_data["actividad"], "cost": 0}
+    fixed_amount = activity["cost"]
 
-        try:
-            cantidad_val = float(cantidad)
-        except ValueError:
-            return render_template("cash_transaction_form.html", user=user, tipo="deposito", error="La cantidad debe ser numérica.")
+    if request.method == "POST":
+        referencia = request.form.get("referencia", "").strip()
+        motivo = request.form.get("motivo", "").strip()
+
+        if not referencia or not motivo:
+            return render_template(
+                "cash_transaction_form.html",
+                user=user,
+                tipo="deposito",
+                actividad=activity,
+                cantidad=fixed_amount,
+                error="Completa la referencia y el motivo de la solicitud.",
+                referencia=referencia,
+                motivo=motivo,
+            )
+
+        cantidad_val = fixed_amount
 
         transfer_id = get_next_sequence("cash_transactions")
         db.cash_transactions.insert_one(
@@ -2307,23 +3586,33 @@ def deposit_cash():
                 "cantidad": cantidad_val,
                 "estado": "pendiente",
                 "referencia": referencia,
-                "comentario": None,
-                "actividad": None,
+                "comentario": motivo,
+                "actividad": activity["name"],
                 "ticket_number": None,
                 "created_at": datetime.utcnow(),
                 "updated_at": datetime.utcnow(),
             }
         )
-        log_action(user["id"], "transferencia_deposito", f"Solicitud de depósito de ${cantidad_val}.", entity_type="transfer", entity_id=transfer_id)
+        log_action(user["id"], "transferencia_deposito", f"Solicitud de depósito de ${cantidad_val} para actividad {activity['name']}.", entity_type="transfer", entity_id=transfer_id)
         return render_template(
             "simple.html",
             title="Depósito solicitado",
             subtitle="Tu solicitud de depósito ha sido registrada.",
-            lines=["El administrador revisará el comprobante y procesará la transferencia."],
+            lines=[
+                f"Actividad: {activity['name']}",
+                f"Monto fijo: ${cantidad_val}",
+                "El administrador revisará la solicitud y te informará luego.",
+            ],
             actions=[{"label": "Mi Actividad", "endpoint": "user_activity_dashboard"}, {"label": "Inicio", "endpoint": "home"}],
         )
 
-    return render_template("cash_transaction_form.html", user=user, tipo="deposito")
+    return render_template(
+        "cash_transaction_form.html",
+        user=user,
+        tipo="deposito",
+        actividad=activity,
+        cantidad=fixed_amount,
+    )
 
 
 @app.route("/retirar-efectivo", methods=["GET", "POST"])
@@ -2343,16 +3632,26 @@ def withdraw_cash():
             actions=[{"label": "Mi Actividad", "endpoint": "user_activity_dashboard"}, {"label": "Inicio", "endpoint": "home"}],
         )
 
-    if request.method == "POST":
-        cantidad = request.form.get("cantidad", "").strip()
-        referencia = request.form.get("referencia", "").strip()
-        if not cantidad:
-            return render_template("cash_transaction_form.html", user=user, tipo="retiro", error="Ingresa una cantidad válida.")
+    activity = find_activity_option(request_data["actividad"]) or {"name": request_data["actividad"], "cost": 0}
+    fixed_amount = activity["cost"]
 
-        try:
-            cantidad_val = float(cantidad)
-        except ValueError:
-            return render_template("cash_transaction_form.html", user=user, tipo="retiro", error="La cantidad debe ser numérica.")
+    if request.method == "POST":
+        referencia = request.form.get("referencia", "").strip()
+        motivo = request.form.get("motivo", "").strip()
+
+        if not referencia or not motivo:
+            return render_template(
+                "cash_transaction_form.html",
+                user=user,
+                tipo="retiro",
+                actividad=activity,
+                cantidad=fixed_amount,
+                error="Completa la referencia y el motivo de la solicitud.",
+                referencia=referencia,
+                motivo=motivo,
+            )
+
+        cantidad_val = fixed_amount
 
         transfer_id = get_next_sequence("cash_transactions")
         db.cash_transactions.insert_one(
@@ -2363,23 +3662,33 @@ def withdraw_cash():
                 "cantidad": cantidad_val,
                 "estado": "pendiente",
                 "referencia": referencia,
-                "comentario": None,
-                "actividad": None,
+                "comentario": motivo,
+                "actividad": activity["name"],
                 "ticket_number": None,
                 "created_at": datetime.utcnow(),
                 "updated_at": datetime.utcnow(),
             }
         )
-        log_action(user["id"], "transferencia_retiro", f"Solicitud de retiro de ${cantidad_val}.", entity_type="transfer", entity_id=transfer_id)
+        log_action(user["id"], "transferencia_retiro", f"Solicitud de retiro de ${cantidad_val} para actividad {activity['name']}.", entity_type="transfer", entity_id=transfer_id)
         return render_template(
             "simple.html",
             title="Retiro solicitado",
             subtitle="Tu solicitud de retiro ha sido registrada.",
-            lines=["El administrador evaluará tu solicitud y te informará en Mensajes."],
+            lines=[
+                f"Actividad: {activity['name']}",
+                f"Monto fijo: ${cantidad_val}",
+                "El administrador evaluará la solicitud y te informará mediante Mensajes.",
+            ],
             actions=[{"label": "Mi Actividad", "endpoint": "user_activity_dashboard"}, {"label": "Inicio", "endpoint": "home"}],
         )
 
-    return render_template("cash_transaction_form.html", user=user, tipo="retiro")
+    return render_template(
+        "cash_transaction_form.html",
+        user=user,
+        tipo="retiro",
+        actividad=activity,
+        cantidad=fixed_amount,
+    )
 
 
 @app.route("/mensajes")
@@ -2410,5 +3719,5 @@ def forbidden(error):
     ), 403
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
